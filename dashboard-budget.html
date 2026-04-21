@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HISPAM Budget Dashboard April 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      background:#0a0f1e;color:#fff;padding:24px;line-height:1.5}
+.wrap{max-width:1400px;margin:0 auto}
+
+/* ── HEADER ── */
+.topbar{display:flex;justify-content:space-between;align-items:center;
+         border-bottom:2px solid #00c8ff;padding-bottom:16px;margin-bottom:32px}
+.topbar h1{font-size:24px;font-weight:700;color:#00c8ff}
+.topbar p{font-size:12px;color:#606070;margin-top:4px}
+.topbar-right{text-align:right;font-size:12px;color:#606070}
+.topbar-right b{display:block;font-size:18px;color:#1da462;margin-bottom:2px}
+
+/* ── HERO ── */
+.hero{display:grid;grid-template-columns:300px 1fr;gap:32px;
+       background:linear-gradient(135deg,rgba(0,200,255,.06),rgba(29,164,98,.04));
+       border:1px solid #1a2a4a;border-radius:16px;padding:28px;margin-bottom:40px;
+       align-items:center}
+.hero-donut{position:relative;width:260px;height:260px}
+.hero-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+              text-align:center;pointer-events:none}
+.hero-center .big{font-size:26px;font-weight:800;color:#ef4444;display:block}
+.hero-center .big-pct{font-size:18px;font-weight:700;color:#ef4444;display:block;margin-top:2px}
+.hero-center .sub{font-size:10px;color:#606070;text-transform:uppercase;letter-spacing:.5px}
+.hero-stats{display:flex;flex-direction:column;gap:20px}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat-box{background:rgba(0,0,0,.3);border:1px solid #1a2a4a;border-radius:10px;padding:18px;text-align:center}
+.stat-box.accent{border-color:#ef4444}
+.stat-lbl{font-size:10px;text-transform:uppercase;color:#606070;letter-spacing:.5px;margin-bottom:6px}
+.stat-val{font-size:26px;font-weight:800;color:#ef4444}
+.stat-val.green{color:#1da462}
+.stat-val.blue{color:#00c8ff}
+.stat-sub{font-size:11px;color:#606070;margin-top:4px}
+.partner-pills{display:flex;gap:12px;flex-wrap:wrap}
+.ppill{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;
+        background:rgba(0,0,0,.3);border:1px solid #1a2a4a;flex:1;min-width:120px}
+.ppill-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ppill-n{font-size:20px;font-weight:800;color:#fff}
+.ppill-lbl{font-size:11px;color:#a0a0b0}
+
+/* ── SECTION ── */
+.section-title{display:flex;align-items:center;gap:14px;margin-bottom:24px;margin-top:40px}
+.section-title h2{font-size:20px;font-weight:700}
+.section-badge{background:#00c8ff;color:#0a0f1e;padding:4px 12px;border-radius:20px;
+                font-size:12px;font-weight:700}
+.section-badge.amber{background:#f59e0b}
+.section-line{flex:1;height:1px;background:linear-gradient(90deg,#1a2a4a,transparent)}
+
+/* ── PAM GROUP ── */
+.pam-group{margin-bottom:36px}
+.pam-head{display:flex;align-items:center;gap:12px;
+           padding:10px 16px;border-radius:8px;
+           background:rgba(0,0,0,.3);border-left:4px solid #00c8ff;margin-bottom:16px}
+.pam-avatar{width:36px;height:36px;border-radius:50%;
+             background:linear-gradient(135deg,#1da462,#00c8ff);
+             display:flex;align-items:center;justify-content:center;
+             font-size:14px;font-weight:800;color:#0a0f1e;flex-shrink:0}
+.pam-head-name{font-size:15px;font-weight:600;flex:1}
+.pam-head-stats{font-size:12px;color:#a0a0b0}
+.pam-head-total{font-size:15px;font-weight:700;color:#00c8ff;white-space:nowrap}
+
+/* ── PARTNER CARDS ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{background:linear-gradient(135deg,rgba(13,20,38,.98),rgba(20,30,50,.98));
+       border:1px solid #1a2a4a;border-top:3px solid #00c8ff;
+       border-radius:12px;padding:18px;transition:all .3s ease}
+.card:hover{border-top-color:#1da462;box-shadow:0 6px 24px rgba(0,200,255,.1);transform:translateY(-2px)}
+.card-name{font-size:14px;font-weight:600;margin-bottom:12px;color:#fff}
+.amts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.amt-box{background:rgba(0,0,0,.3);border-radius:6px;padding:8px;text-align:center}
+.amt-lbl{font-size:9px;color:#606070;text-transform:uppercase;letter-spacing:.3px}
+.amt-val{font-size:14px;font-weight:700;color:#00c8ff;margin-top:2px}
+.amt-val.g{color:#1da462}
+.amt-val.r{color:#ef4444}
+.chart-area{height:150px;margin-bottom:10px}
+.sem-bar{display:flex;justify-content:space-between;align-items:center;
+          padding:8px 10px;background:rgba(0,0,0,.2);border-radius:6px}
+.sem-dot{width:8px;height:8px;border-radius:50%;animation:pulse 2s infinite;margin-right:6px}
+.sem-label{display:flex;align-items:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.pct-lbl{font-size:11px;color:#606070}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── PLAN CARDS ── */
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.plan-card{background:rgba(13,20,38,.9);border:1px solid #2a3a5a;
+            border-left:4px solid #f59e0b;border-radius:10px;padding:16px}
+.plan-partner{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
+.plan-action{font-size:12px;color:#a0a0b0;margin-bottom:10px}
+.plan-meta{display:flex;justify-content:space-between;align-items:center}
+.plan-date{font-size:11px;color:#606070;background:rgba(0,0,0,.3);padding:4px 8px;border-radius:4px}
+.plan-pam{font-size:10px;color:#1da462;font-weight:600;text-transform:uppercase}
+.plan-amount{font-size:20px;font-weight:800;color:#f59e0b;margin-bottom:8px}
+.plan-strategy{font-size:10px;color:#606070;margin-top:6px}
+.plan-verified{border-left-color:#1da462;background:rgba(29,164,98,.05)}
+.vbadge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
+.vbadge.done{background:rgba(29,164,98,.2);color:#1da462}
+.vbadge.pend{background:rgba(245,158,11,.15);color:#f59e0b}
+.verify-counter{padding:4px 12px;border-radius:16px;font-size:12px;font-weight:600}
+.verified-ct{background:rgba(29,164,98,.2);color:#1da462}
+.pending-ct{background:rgba(245,158,11,.15);color:#f59e0b}
+
+/* ── PRODUCT GRID ── */
+.product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px}
+.product-card{background:linear-gradient(135deg,rgba(13,20,38,.98),rgba(20,30,50,.98));
+    border:1px solid #1a2a4a;border-top:3px solid #8b5cf6;
+    border-radius:12px;padding:24px 20px;text-align:center;transition:all .3s ease}
+.product-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(139,92,246,.15)}
+.product-card svg{margin-bottom:12px}
+.product-num{font-size:32px;font-weight:800;color:#fff;line-height:1}
+.product-plus{color:#8b5cf6;font-size:24px}
+.product-lbl{font-size:13px;font-weight:600;color:#a0a0b0;margin-top:6px;text-transform:uppercase;letter-spacing:.5px}
+.product-sub{font-size:11px;color:#606070;margin-top:4px}
+@media(max-width:768px){.product-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── MDF EVENTS ── */
+.mdf-event{margin-top:8px;padding:8px 10px;background:rgba(0,0,0,.25);border-radius:6px;
+            border-left:2px solid #1a2a4a;font-size:11px}
+.mdf-event:first-of-type{margin-top:10px;border-top:1px solid #1a2a4a;padding-top:10px}
+.mdf-id{color:#606070;font-size:10px;font-weight:600;letter-spacing:.5px}
+.mdf-status{float:right;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.mdf-done{background:rgba(29,164,98,.2);color:#1da462}
+.mdf-prog{background:rgba(245,158,11,.2);color:#f59e0b}
+.mdf-desc{color:#a0a0b0;margin-top:3px;clear:both}
+.mdf-amt{color:#00c8ff;font-weight:700;font-size:13px;margin-top:4px}
+
+/* ── FOOTER ── */
+.footer{text-align:center;margin-top:48px;padding-top:24px;
+         border-top:1px solid #1a2a4a;color:#606070;font-size:12px}
+.footer strong{color:#1da462}
+
+/* ── KEY PARTNERS STRIP ── */
+.kp-list{background:rgba(13,20,38,.95);border:1px solid #1a2a4a;border-radius:12px;
+          overflow:hidden;margin-bottom:40px}
+.kp-list-hdr{display:grid;grid-template-columns:20px 1fr 110px 1fr 110px;gap:12px;
+              padding:10px 18px;background:rgba(0,0,0,.35);
+              font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#5a6a8a}
+.kp-row{display:grid;grid-template-columns:20px 1fr 110px 1fr 110px;gap:12px;
+         align-items:center;padding:11px 18px;border-top:1px solid #0e1e35;transition:background .15s}
+.kp-row:hover{background:rgba(255,255,255,.03)}
+.kp-dot{width:12px;height:12px;border-radius:50%;justify-self:center}
+.kp-dot.red{background:#ef4444;box-shadow:0 0 7px #ef4444;animation:pulse 2s infinite}
+.kp-dot.yellow{background:#f59e0b;box-shadow:0 0 5px #f59e0b}
+.kp-dot.green{background:#1da462;box-shadow:0 0 5px #1da462}
+.kp-dot.over{background:#8b5cf6}
+.kp-rname{font-size:13px;font-weight:600;color:#fff}
+.kp-rbudget{font-size:12px;color:#a0a0b0;font-weight:600;text-align:right}
+.kp-rbar-wrap{display:flex;align-items:center;gap:8px}
+.kp-rbar-track{flex:1;background:#1a2a4a;border-radius:3px;height:5px;overflow:hidden}
+.kp-rbar-fill{height:5px;border-radius:3px}
+.kp-rpct{font-size:12px;font-weight:800;width:40px;text-align:right;flex-shrink:0}
+.kp-badge{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+           padding:3px 10px;border-radius:10px;text-align:center;white-space:nowrap}
+.kp-badge.red{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.kp-badge.yellow{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.kp-badge.green{background:rgba(29,164,98,.15);color:#1da462;border:1px solid rgba(29,164,98,.3)}
+.kp-badge.over{background:rgba(139,92,246,.15);color:#8b5cf6;border:1px solid rgba(139,92,246,.3)}
+
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr}
+  .hero-donut{margin:0 auto}
+  .stat-row{grid-template-columns:1fr}
+  .kp-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <h1>HISPAM Budget Dashboard 2026</h1>
+    <p>Channel Marketing Co-Marketing Tracker</p>
+  </div>
+  <div class="topbar-right">
+    <b>April 2026</b>
+    Actualizado: 21/04/2026 14:17
+  </div>
+</div>
+
+<!-- ══ SECCIÓN 1 — RESUMEN TOTAL ══ -->
+<div class="hero">
+  <div>
+    <div class="hero-donut">
+      <canvas id="chart-hero"></canvas>
+      <div class="hero-center">
+        <span class="big">$12,434</span>
+        <span class="big-pct">4.8%</span>
+        <span class="sub">del budget gastado</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-row">
+      <div class="stat-box accent">
+        <div class="stat-lbl">Total Gastado</div>
+        <div class="stat-val">$12,434</div>
+        <div class="stat-sub">4.8% del budget</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">Budget Total</div>
+        <div class="stat-val blue">$261,000</div>
+        <div class="stat-sub">Presupuesto 2026</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-lbl">Disponible</div>
+        <div class="stat-val green">$248,566</div>
+        <div class="stat-sub">95.2% restante</div>
+      </div>
+    </div>
+    <div class="partner-pills">
+      <div class="ppill">
+        <div class="ppill-dot" style="background:#1da462"></div>
+        <div>
+          <div class="ppill-n">31</div>
+          <div class="ppill-lbl">Partners totales</div>
+        </div>
+      </div>
+      <div class="ppill">
+        <div class="ppill-dot" style="background:#f59e0b;animation:pulse 2s infinite"></div>
+        <div>
+          <div class="ppill-n">5</div>
+          <div class="ppill-lbl">Han gastado</div>
+        </div>
+      </div>
+      <div class="ppill">
+        <div class="ppill-dot" style="background:#f59e0b"></div>
+        <div>
+          <div class="ppill-n">32</div>
+          <div class="ppill-lbl">Actividades planeadas</div>
+        </div>
+      </div>
+      <div class="ppill">
+        <div class="ppill-dot" style="background:#ef4444"></div>
+        <div>
+          <div class="ppill-n">26</div>
+          <div class="ppill-lbl">Sin gasto ejecutado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SECCIÓN 2 — PLAN DE UPSELLING ══ -->
+<div class="section-title" style="margin-top:0">
+  <h2>Plan de Upselling - Dispositivos - Land &amp; Expand</h2>
+  <div class="section-badge" style="background:#8b5cf6">Oportunidades Planeadas</div>
+  <div class="section-line"></div>
+</div>
+<div class="product-grid">
+  <div class="product-card">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="1.5"><rect x="1" y="5" width="15" height="14" rx="2"/><path d="M23 7l-7 5 7 5V7z"/></svg>
+    <div class="product-num">1,000<span class="product-plus">+</span></div>
+    <div class="product-lbl">Dashcams</div>
+    <div class="product-sub">1 eventos planeados</div>
+  </div>
+  <div class="product-card">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1da462" stroke-width="1.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="#1da462"/></svg>
+    <div class="product-num">13,400<span class="product-plus">+</span></div>
+    <div class="product-lbl">GO Devices</div>
+    <div class="product-sub">25 eventos planeados</div>
+  </div>
+  <div class="product-card">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>
+    <div class="product-num">1,100<span class="product-plus">+</span></div>
+    <div class="product-lbl">Cámaras Order Now</div>
+    <div class="product-sub">6 eventos planeados</div>
+  </div>
+  <div class="product-card">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <div class="product-num">100<span class="product-plus">+</span></div>
+    <div class="product-lbl">Asset Trackers</div>
+    <div class="product-sub">1 eventos planeados</div>
+  </div>
+</div>
+
+<!-- ══ CLOSE LOOP KEY PARTNERS ══ -->
+<div class="section-title">
+  <h2>Close Loop Key Partners</h2>
+  <div class="section-badge" style="background:#8b5cf6">8 Estrat&#233;gicos</div>
+  <div class="section-line"></div>
+  <span style="color:#ef4444;font-size:13px;font-weight:700;white-space:nowrap">5 Sin Activar</span>
+  &nbsp;
+  <span style="color:#f59e0b;font-size:13px;font-weight:700;white-space:nowrap">3 En Progreso</span>
+</div>
+<div class="kp-list">
+  <div class="kp-list-hdr">
+    <span></span><span>Partner</span><span style="text-align:right">Budget</span><span>Utilizaci&#243;n</span><span>Estado</span>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot red"></div>
+    <div class="kp-rname">Metrica Mobil</div>
+    <div class="kp-rbudget">$85,451</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:0.0%;background:#ef4444"></div></div>
+      <span class="kp-rpct" style="color:#ef4444">0.0%</span>
+    </div>
+    <div class="kp-badge red">Sin Activar</div>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot yellow"></div>
+    <div class="kp-rname">Element</div>
+    <div class="kp-rbudget">$16,745</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:10.3%;background:#f59e0b"></div></div>
+      <span class="kp-rpct" style="color:#f59e0b">10.3%</span>
+    </div>
+    <div class="kp-badge yellow">En Progreso</div>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot yellow"></div>
+    <div class="kp-rname">AT&T</div>
+    <div class="kp-rbudget">$17,239</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:19.4%;background:#f59e0b"></div></div>
+      <span class="kp-rpct" style="color:#f59e0b">19.4%</span>
+    </div>
+    <div class="kp-badge yellow">En Progreso</div>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot red"></div>
+    <div class="kp-rname">Navisaf</div>
+    <div class="kp-rbudget">$37,157</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:0.0%;background:#ef4444"></div></div>
+      <span class="kp-rpct" style="color:#ef4444">0.0%</span>
+    </div>
+    <div class="kp-badge red">Sin Activar</div>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot yellow"></div>
+    <div class="kp-rname">Cesetti</div>
+    <div class="kp-rbudget">$5,982</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:26.8%;background:#f59e0b"></div></div>
+      <span class="kp-rpct" style="color:#f59e0b">26.8%</span>
+    </div>
+    <div class="kp-badge yellow">En Progreso</div>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot red"></div>
+    <div class="kp-rname">Triple Z</div>
+    <div class="kp-rbudget">$6,317</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:0.0%;background:#ef4444"></div></div>
+      <span class="kp-rpct" style="color:#ef4444">0.0%</span>
+    </div>
+    <div class="kp-badge red">Sin Activar</div>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot red"></div>
+    <div class="kp-rname">Giscad</div>
+    <div class="kp-rbudget">$9,801</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:0.0%;background:#ef4444"></div></div>
+      <span class="kp-rpct" style="color:#ef4444">0.0%</span>
+    </div>
+    <div class="kp-badge red">Sin Activar</div>
+  </div>
+  <div class="kp-row">
+    <div class="kp-dot red"></div>
+    <div class="kp-rname">RDA</div>
+    <div class="kp-rbudget">$7,172</div>
+    <div class="kp-rbar-wrap">
+      <div class="kp-rbar-track"><div class="kp-rbar-fill" style="width:0.0%;background:#ef4444"></div></div>
+      <span class="kp-rpct" style="color:#ef4444">0.0%</span>
+    </div>
+    <div class="kp-badge red">Sin Activar</div>
+  </div>
+</div>
+
+<!-- ══ SECCIÓN 3 — YA GASTADO ══ -->
+<div class="section-title">
+  <h2>Ya Gastado</h2>
+  <div class="section-badge">5 de 31 partners</div>
+  <div class="section-line"></div>
+  <span style="color:#a0a0b0;font-size:13px;white-space:nowrap">$9,918 ejecutado</span>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head">
+    <div class="pam-avatar">A</div>
+    <div class="pam-head-name">Adrian</div>
+    <div class="pam-head-stats">1 partner &bull; 10% utilizado</div>
+    <div class="pam-head-total">$1,731 gastado</div>
+  </div>
+  <div class="cards-grid">
+
+    <div class="card">
+      <div class="card-name">Element LATAM</div>
+      <div class="amts">
+        <div class="amt-box">
+          <div class="amt-lbl">Budget</div>
+          <div class="amt-val">$16,745</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Gastado</div>
+          <div class="amt-val">$1,731</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Disponible</div>
+          <div class="amt-val g">$15,014</div>
+        </div>
+      </div>
+      <div class="chart-area">
+        <canvas id="c5"></canvas>
+      </div>
+      <div class="sem-bar">
+        <div class="sem-label">
+          <div class="sem-dot" style="background:#f59e0b"></div>
+          En Progreso
+        </div>
+        <div class="pct-lbl">10.3% del budget</div>
+      </div>
+      <div class="mdf-event">
+        <span class="mdf-id">MDF26-902</span>
+        <span class="mdf-status mdf-done">Completed</span>
+        <div class="mdf-desc">Assets for internal client event</div>
+        <div class="mdf-amt">$1,731.45 USD</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head">
+    <div class="pam-avatar">E</div>
+    <div class="pam-head-name">Edgar</div>
+    <div class="pam-head-stats">1 partner &bull; 19% utilizado</div>
+    <div class="pam-head-total">$3,347 gastado</div>
+  </div>
+  <div class="cards-grid">
+
+    <div class="card">
+      <div class="card-name">AT&T LATAM</div>
+      <div class="amts">
+        <div class="amt-box">
+          <div class="amt-lbl">Budget</div>
+          <div class="amt-val">$17,239</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Gastado</div>
+          <div class="amt-val">$3,347</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Disponible</div>
+          <div class="amt-val g">$13,892</div>
+        </div>
+      </div>
+      <div class="chart-area">
+        <canvas id="c1"></canvas>
+      </div>
+      <div class="sem-bar">
+        <div class="sem-label">
+          <div class="sem-dot" style="background:#f59e0b"></div>
+          En Progreso
+        </div>
+        <div class="pct-lbl">19.4% del budget</div>
+      </div>
+      <div class="mdf-event">
+        <span class="mdf-id">MDF26-905</span>
+        <span class="mdf-status mdf-prog">In Progress</span>
+        <div class="mdf-desc">1 night boutique event in Monterrey - Partner relationship manage...</div>
+        <div class="mdf-amt">$3,347.31 USD</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head">
+    <div class="pam-avatar">J</div>
+    <div class="pam-head-name">Jose</div>
+    <div class="pam-head-stats">1 partner &bull; 103% utilizado</div>
+    <div class="pam-head-total">$2,462 gastado</div>
+  </div>
+  <div class="cards-grid">
+
+    <div class="card">
+      <div class="card-name">Administracion de Flotas S.A. de C.V.</div>
+      <div class="amts">
+        <div class="amt-box">
+          <div class="amt-lbl">Budget</div>
+          <div class="amt-val">$2,384</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Gastado</div>
+          <div class="amt-val">$2,462</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Disponible</div>
+          <div class="amt-val g">$0</div>
+        </div>
+      </div>
+      <div class="chart-area">
+        <canvas id="c0"></canvas>
+      </div>
+      <div class="sem-bar">
+        <div class="sem-label">
+          <div class="sem-dot" style="background:#8b5cf6"></div>
+          Over Budget
+        </div>
+        <div class="pct-lbl">103.3% del budget</div>
+      </div>
+      <div class="mdf-event">
+        <span class="mdf-id">MDF26-903</span>
+        <span class="mdf-status mdf-done">Completed</span>
+        <div class="mdf-desc">Booth development for the Expo Oil and Gas (MEIH)</div>
+        <div class="mdf-amt">$2,461.71 USD</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head">
+    <div class="pam-avatar">R</div>
+    <div class="pam-head-name">Ruben</div>
+    <div class="pam-head-stats">2 partners &bull; 38% utilizado</div>
+    <div class="pam-head-total">$2,378 gastado</div>
+  </div>
+  <div class="cards-grid">
+
+    <div class="card">
+      <div class="card-name">Cesetti</div>
+      <div class="amts">
+        <div class="amt-box">
+          <div class="amt-lbl">Budget</div>
+          <div class="amt-val">$5,982</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Gastado</div>
+          <div class="amt-val">$1,603</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Disponible</div>
+          <div class="amt-val g">$4,379</div>
+        </div>
+      </div>
+      <div class="chart-area">
+        <canvas id="c3"></canvas>
+      </div>
+      <div class="sem-bar">
+        <div class="sem-label">
+          <div class="sem-dot" style="background:#f59e0b"></div>
+          En Progreso
+        </div>
+        <div class="pct-lbl">26.8% del budget</div>
+      </div>
+      <div class="mdf-event">
+        <span class="mdf-id">MDF26-904</span>
+        <span class="mdf-status mdf-done">Completed</span>
+        <div class="mdf-desc">Working breakfast and speaking engagement at the Soluciones Ecoló...</div>
+        <div class="mdf-amt">$1,602.89 USD</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-name">KPN Energy Solutions</div>
+      <div class="amts">
+        <div class="amt-box">
+          <div class="amt-lbl">Budget</div>
+          <div class="amt-val">$269</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Gastado</div>
+          <div class="amt-val">$775</div>
+        </div>
+        <div class="amt-box">
+          <div class="amt-lbl">Disponible</div>
+          <div class="amt-val g">$0</div>
+        </div>
+      </div>
+      <div class="chart-area">
+        <canvas id="c13"></canvas>
+      </div>
+      <div class="sem-bar">
+        <div class="sem-label">
+          <div class="sem-dot" style="background:#8b5cf6"></div>
+          Over Budget
+        </div>
+        <div class="pct-lbl">287.6% del budget</div>
+      </div>
+      <div class="mdf-event">
+        <span class="mdf-id">MDF26-901</span>
+        <span class="mdf-status mdf-done">Completed</span>
+        <div class="mdf-desc">Swag Power Banks - Christmas Incentives for top key clients</div>
+        <div class="mdf-amt">$775.00 USD</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SECCIÓN 4 — PIPELINE PLANEADO ══ -->
+<div class="section-title">
+  <h2>Pipeline Planeado</h2>
+  <div class="section-badge amber">32 actividades</div>
+  <span class="verify-counter verified-ct">0 Verificados</span>
+  <span class="verify-counter pending-ct">32 Pendientes</span>
+  <div class="section-line"></div>
+  <span style="color:#a0a0b0;font-size:13px;white-space:nowrap">$25,627 comprometido</span>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head" style="border-left-color:#f59e0b">
+    <div class="pam-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">E</div>
+    <div class="pam-head-name">Edgar</div>
+    <div class="pam-head-stats">2 actividades</div>
+    <div class="pam-head-total" style="color:#f59e0b">$10,967 planeado</div>
+  </div>
+  <div class="plan-grid">
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">$5,772</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">AT&T MX</div>
+      <div class="plan-action">Business dinner</div>
+      <div class="plan-meta">
+        <div class="plan-date">4/23/2026</div>
+        <div class="plan-pam">Edgar H</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">$5,195</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">AT&T MX</div>
+      <div class="plan-action">Awareness and incentive apparel</div>
+      <div class="plan-meta">
+        <div class="plan-date">8/1/2026</div>
+        <div class="plan-pam">Edgar H</div>
+      </div>
+      <div class="plan-strategy">New Opportunities (Land)</div>
+    </div>
+  </div>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head" style="border-left-color:#f59e0b">
+    <div class="pam-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">R</div>
+    <div class="pam-head-name">Ruben</div>
+    <div class="pam-head-stats">2 actividades</div>
+    <div class="pam-head-total" style="color:#f59e0b">$3,200 planeado</div>
+  </div>
+  <div class="plan-grid">
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">$2,000</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">COMTEC Salta Arg</div>
+      <div class="plan-action">Working Breakfast, Date: July 2026</div>
+      <div class="plan-meta">
+        <div class="plan-date">7/15/2026</div>
+        <div class="plan-pam">Ruben K</div>
+      </div>
+      <div class="plan-strategy">Lead Generation (Land)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">$1,200</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">RDA Argentina</div>
+      <div class="plan-action">1- Working Breakfast</div>
+      <div class="plan-meta">
+        <div class="plan-date">4/15/2026</div>
+        <div class="plan-pam">Ruben K</div>
+      </div>
+      <div class="plan-strategy">Lead Generation (Land)</div>
+    </div>
+  </div>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head" style="border-left-color:#f59e0b">
+    <div class="pam-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">V</div>
+    <div class="pam-head-name">Veronica</div>
+    <div class="pam-head-stats">1 actividad</div>
+    <div class="pam-head-total" style="color:#f59e0b">$1,460 planeado</div>
+  </div>
+  <div class="plan-grid">
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">$1,460</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Mitta Peru</div>
+      <div class="plan-action">Fair inside Mining Las Bambas</div>
+      <div class="plan-meta">
+        <div class="plan-date">4/26/2026</div>
+        <div class="plan-pam">Veronica Leon</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+  </div>
+</div>
+
+<div class="pam-group">
+  <div class="pam-head" style="border-left-color:#f59e0b">
+    <div class="pam-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">K</div>
+    <div class="pam-head-name">Krystel</div>
+    <div class="pam-head-stats">27 actividades</div>
+    <div class="pam-head-total" style="color:#f59e0b">$10,000 planeado</div>
+  </div>
+  <div class="plan-grid">
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">$10,000</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Techweb</div>
+      <div class="plan-action">Puerto RIco compra</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q2</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">32 LUNCH AND LEARNS IN 2026</div>
+      <div class="plan-action">lunch and learns</div>
+      <div class="plan-meta">
+        <div class="plan-date">2026</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Training Enablement</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">9 WEBINARS IN 2026</div>
+      <div class="plan-action">webinars</div>
+      <div class="plan-meta">
+        <div class="plan-date">2026</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Brand Awareness</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Barbados Limited (Total: $10,800 - own budget; co marketing separate)</div>
+      <div class="plan-action">GeoTrac Online Seminar</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q1</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Barbados Limited (Total: $10,800 - own budget; co marketing separate)</div>
+      <div class="plan-action">Conference Exhibition</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q1</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Limited (Total: $70,000)</div>
+      <div class="plan-action">International Business Conference - Suriname</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q1</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Jamaica Limited (Total: $11,500 – own budget; co-marketing separate)</div>
+      <div class="plan-action">GeoTrac® Client Appreciation Event</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q1</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Guyana Inc. (Total: $14,500 -own budge; co marketing separate)</div>
+      <div class="plan-action">Guyana Energy Conference & Supply Chain Expo</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q1 (Feb)</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Limited (Total: $70,000 -own budget; co marketing separate)</div>
+      <div class="plan-action">GeoTrac® CAB (Customer Advisory Board) Launch Event</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q1 (Mar)</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Barbados Limited (Total: $10,800 - own budget; co marketing separate)</div>
+      <div class="plan-action">GBL Customer Appreciation Event</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q2</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Limited (Total: $70,000 -own budget; co marketing separate)</div>
+      <div class="plan-action">GeoTrac® Industry Networking Event</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q2</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Limited (Total: $70,000 -own budget; co marketing separate)</div>
+      <div class="plan-action">GeoTrac® LATAM Launch x2</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q2</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Guyana Inc. (Total: $14,500 -own budge; co marketing separate)</div>
+      <div class="plan-action">GGI Customer Appreciation Event</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q2</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Jamaica Limited (Total: $11,500 – own budget; co-marketing separate)</div>
+      <div class="plan-action">Jamaica Manufactures Expo</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q2</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">ANC Nicaragua</div>
+      <div class="plan-action">Official launch</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">ANC Costa Rica</div>
+      <div class="plan-action">Official launch</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">ANC Guatemala</div>
+      <div class="plan-action">Official launch</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Smart Mobility</div>
+      <div class="plan-action">Executive Working breakfast</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Smart Mobility</div>
+      <div class="plan-action">Executive Working breakfast</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Smart Mobility</div>
+      <div class="plan-action">Executive Working breakfast</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Limited (Total: $70,000 -own budget; co marketing separate)</div>
+      <div class="plan-action">Trade and Investment Conference</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Liberty</div>
+      <div class="plan-action">Liberty launch B2B</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Liberty</div>
+      <div class="plan-action">Liberty event B2B</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">Navisaf Central America</div>
+      <div class="plan-action">Expo Concreto</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">SETAR</div>
+      <div class="plan-action">Official launch</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q3</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Limited (Total: $70,000 -own budget; co marketing separate)</div>
+      <div class="plan-action">AMCHAM HSSE Conference</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q4</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+
+    <div class="plan-card ">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="plan-amount" style="margin-bottom:0">TBD</div>
+        <span class="vbadge pend">Pendiente</span>
+      </div>
+      <div class="plan-partner">GISCAD Limited (Total: $70,000 -own budget; co marketing separate)</div>
+      <div class="plan-action">GeoTrac® Customer Appreciation Event</div>
+      <div class="plan-meta">
+        <div class="plan-date">Q4</div>
+        <div class="plan-pam">Krystel</div>
+      </div>
+      <div class="plan-strategy">Land (Leads) & Expand (Upselling)</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>GEOTAB HISPAM</strong> &bull; Channel Marketing Co-Marketing Budget Dashboard 2026<br>
+  Datos en tiempo real desde Google Sheets &bull; Generado el 21/04/2026 14:17
+</div>
+</div>
+
+<script>
+const SEM = {green:'#1da462',yellow:'#f59e0b',red:'#ef4444',over:'#8b5cf6'};
+const DISP_COLOR = '#1e3a5f';
+
+const partnerData = [
+  {id:"c0",spent:2461.71,remain:0,budget:2383.61,sem:"over"},
+  {id:"c1",spent:3347.31,remain:13891.69,budget:17239.0,sem:"yellow"},
+  {id:"c3",spent:1602.89,remain:4378.79,budget:5981.68,sem:"yellow"},
+  {id:"c5",spent:1731.0,remain:15013.57,budget:16744.57,sem:"yellow"},
+  {id:"c13",spent:775.0,remain:0,budget:269.48,sem:"over"},
+];
+
+const heroCtx = document.getElementById('chart-hero');
+new Chart(heroCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Gastado','Disponible'],
+        datasets: [{
+            data: [12434.0, 248566.0],
+            backgroundColor: ['#ef4444', DISP_COLOR],
+            borderColor: '#0a0f1e',
+            borderWidth: 3,
+            hoverBackgroundColor: ['#ef4444','#2a4f80'],
+            hoverBorderColor: '#00c8ff',
+            hoverBorderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        animation: {duration:1000},
+        plugins: {
+            legend: {display:false},
+            tooltip: {
+                callbacks: {
+                    label: ctx => ctx.label + ': $' + ctx.parsed.toLocaleString('en-US',{maximumFractionDigits:0}) +
+                                  ' (' + (ctx.parsed / 261000.0 * 100).toFixed(1) + '%)'
+                },
+                backgroundColor: 'rgba(10,15,30,.95)',
+                borderColor: '#ef4444', borderWidth:1,
+                titleColor: '#ef4444', bodyColor:'#fff',
+                bodyFont: {size:13,weight:'bold'}, padding:12
+            }
+        }
+    }
+});
+
+partnerData.forEach(p => {
+    const el = document.getElementById(p.id);
+    if (!el) return;
+    const color = SEM[p.sem];
+    new Chart(el, {
+        type: 'doughnut',
+        data: {
+            labels: ['Gastado','Disponible'],
+            datasets: [{
+                data: [p.spent || 0.01, Math.max(p.remain, 0.01)],
+                backgroundColor: [color, DISP_COLOR],
+                borderColor: '#0a0f1e',
+                borderWidth: 3,
+                hoverBackgroundColor: [color,'#2a4f80'],
+                hoverBorderColor: '#00c8ff',
+                hoverBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            animation: {animateRotate:true,duration:800},
+            plugins: {
+                legend: {display:false},
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const usd = ctx.parsed.toLocaleString('en-US',{maximumFractionDigits:0});
+                            const pct = (ctx.parsed / p.budget * 100).toFixed(1);
+                            return ctx.label + ': $' + usd + ' (' + pct + '%)';
+                        }
+                    },
+                    backgroundColor: 'rgba(10,15,30,.95)',
+                    borderColor: color, borderWidth:1,
+                    titleColor: color, bodyColor:'#fff',
+                    bodyFont: {size:13,weight:'bold'}, padding:10
+                }
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

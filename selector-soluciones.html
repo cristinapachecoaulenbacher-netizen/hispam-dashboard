@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selector de Soluciones Geotab | HISPAM</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00843D;--green-dark:#006B31;--green-light:#E8F5E9;
+  --navy:#1A1F36;--slate:#334155;--muted:#64748B;
+  --bg:#F8FAFC;--card:#FFFFFF;--border:#E2E8F0;
+  --radius:12px;--shadow:0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.12);
+  --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--navy);min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--navy);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:0.75rem}
+.logo-text{font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:2px}
+.logo-sub{font-size:0.75rem;color:rgba(255,255,255,0.6);letter-spacing:1px}
+.progress-wrap{flex:1;max-width:300px;margin-left:2rem}
+.progress-bar{height:4px;background:rgba(255,255,255,0.15);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width 0.5s ease;width:0%}
+.progress-label{font-size:0.7rem;color:rgba(255,255,255,0.5);margin-top:4px;text-align:right}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem}
+.screen{display:none;width:100%;max-width:1050px;animation:fadeUp 0.4s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.welcome{text-align:center;padding:2rem 0}
+.welcome-icon{width:80px;height:80px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+.welcome-icon svg{width:40px;height:40px;fill:#fff}
+.welcome h1{font-size:2.2rem;font-weight:800;color:var(--navy);margin-bottom:0.5rem}
+.welcome h1 span{color:var(--green)}
+.welcome p{font-size:1.1rem;color:var(--muted);max-width:520px;margin:0 auto 2rem;line-height:1.6}
+.btn-start{background:var(--green);color:#fff;border:none;padding:1rem 3rem;font-size:1.1rem;font-weight:600;border-radius:50px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:0.5rem}
+.btn-start:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.screen-header{text-align:center;margin-bottom:2rem}
+.screen-header h2{font-size:1.6rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem}
+.screen-header p{font-size:1rem;color:var(--muted)}
+.back-btn{display:inline-flex;align-items:center;gap:0.4rem;color:var(--muted);font-size:0.9rem;cursor:pointer;border:none;background:none;margin-bottom:1.5rem;transition:var(--transition)}
+.back-btn:hover{color:var(--green)}
+.back-btn svg{width:18px;height:18px;fill:currentColor}
+.cards{display:grid;gap:1rem}
+.cards.cols-2{grid-template-columns:repeat(2,1fr)}
+.cards.cols-3{grid-template-columns:repeat(3,1fr)}
+.cards.cols-4{grid-template-columns:repeat(4,1fr)}
+.cards.cols-4 .card{padding:1rem;gap:0.4rem}
+.cards.cols-4 .card-icon{width:40px;height:40px;border-radius:10px}
+.cards.cols-4 .card-icon svg{width:20px;height:20px}
+.cards.cols-4 .card-title{font-size:0.85rem}
+.cards.cols-4 .card-desc{font-size:0.7rem}
+.card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:var(--transition);display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.6rem}
+.card:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.card.selected{border-color:var(--green);background:var(--green-light);box-shadow:0 0 0 3px rgba(0,132,61,0.15)}
+.card-icon{width:48px;height:48px;background:var(--green-light);border-radius:12px;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.card:hover .card-icon,.card.selected .card-icon{background:var(--green)}
+.card-icon svg{width:24px;height:24px;fill:var(--green);transition:var(--transition)}
+.card:hover .card-icon svg,.card.selected .card-icon svg{fill:#fff}
+.card-title{font-size:0.9rem;font-weight:700;color:var(--navy)}
+.card-desc{font-size:0.78rem;color:var(--muted);line-height:1.4}
+.toggle-card{position:relative}
+.toggle-card .check-mark{position:absolute;top:8px;right:8px;width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.toggle-card.selected .check-mark{background:var(--green);border-color:var(--green)}
+.toggle-card.selected .check-mark svg{fill:#fff}
+.toggle-card .check-mark svg{width:12px;height:12px;fill:transparent}
+.action-bar{text-align:center;margin-top:2rem}
+.btn-action{background:var(--green);color:#fff;border:none;padding:0.9rem 2.5rem;font-size:1rem;font-weight:600;border-radius:50px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:0.5rem}
+.btn-action:hover{background:var(--green-dark);transform:translateY(-2px)}
+.btn-action svg{width:20px;height:20px;fill:#fff}
+.result-header{text-align:center;margin-bottom:2rem;padding:1.5rem;background:linear-gradient(135deg,var(--green),var(--green-dark));border-radius:var(--radius);color:#fff}
+.result-header h2{font-size:1.5rem;font-weight:800;margin-bottom:0.25rem}
+.result-header p{opacity:0.85;font-size:0.95rem}
+.result-badge{display:inline-block;background:rgba(255,255,255,0.2);padding:0.3rem 1rem;border-radius:50px;font-size:0.8rem;font-weight:600;margin-bottom:0.75rem}
+.group-header{font-size:0.85rem;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin:1.5rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:2px solid var(--border)}
+.group-header:first-of-type{margin-top:0}
+.product-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;margin-bottom:0.75rem;display:flex;gap:1rem;align-items:flex-start;animation:fadeUp 0.4s ease backwards}
+.product-card:nth-child(2){animation-delay:0.05s}
+.product-card:nth-child(3){animation-delay:0.1s}
+.product-card:nth-child(4){animation-delay:0.15s}
+.product-card .p-icon{width:40px;height:40px;min-width:40px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.product-card .p-icon svg{width:20px;height:20px;fill:#fff}
+.p-icon.base{background:var(--green)}
+.p-icon.camera{background:#2563EB}
+.p-icon.cold{background:#0891B2}
+.p-icon.asset{background:#7C3AED}
+.p-icon.iox{background:#D97706}
+.p-icon.addon{background:#DC2626}
+.p-icon.marketplace{background:#EC4899}
+.product-card .p-info h3{font-size:0.95rem;font-weight:700;color:var(--navy);margin-bottom:0.2rem}
+.product-card .p-info p{font-size:0.8rem;color:var(--muted);line-height:1.45}
+.product-card .p-features{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.4rem}
+.feature-chip{background:var(--bg);padding:0.15rem 0.5rem;border-radius:50px;font-size:0.7rem;color:var(--slate);border:1px solid var(--border)}
+.vendor-tag{font-size:0.65rem;font-weight:600;color:#7C3AED;background:#F3E8FF;padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.3rem}
+.talking-points{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-top:1.5rem}
+.talking-points h3{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.talking-points h3 svg{width:20px;height:20px;fill:var(--green)}
+.talking-points ul{list-style:none;display:flex;flex-direction:column;gap:0.5rem}
+.talking-points li{font-size:0.85rem;color:var(--slate);padding-left:1.2rem;position:relative;line-height:1.5}
+.talking-points li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;background:var(--green);border-radius:50%}
+.result-actions{display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap}
+.btn-secondary{background:transparent;color:var(--navy);border:2px solid var(--border);padding:0.75rem 1.5rem;font-size:0.9rem;font-weight:600;border-radius:50px;cursor:pointer;transition:var(--transition)}
+.btn-secondary:hover{border-color:var(--green);color:var(--green)}
+.btn-whatsapp{background:#25D366;color:#fff;border:none;padding:0.75rem 1.5rem;font-size:0.9rem;font-weight:600;border-radius:50px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:0.5rem}
+.btn-whatsapp:hover{background:#1da851;transform:translateY(-1px)}
+.btn-email{background:#4285F4;color:#fff;border:none;padding:0.75rem 1.5rem;font-size:0.9rem;font-weight:600;border-radius:50px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:0.5rem}
+.btn-email:hover{background:#3367d6;transform:translateY(-1px)}
+.btn-copy{background:var(--slate);color:#fff;border:none;padding:0.75rem 1.5rem;font-size:0.9rem;font-weight:600;border-radius:50px;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:0.5rem}
+.btn-copy:hover{background:var(--navy);transform:translateY(-1px)}
+.welcome-options{display:flex;flex-direction:column;gap:0.75rem;align-items:center;margin-top:1.5rem}
+.btn-link{background:none;border:none;color:var(--muted);font-size:0.9rem;cursor:pointer;text-decoration:underline;transition:var(--transition)}
+.btn-link:hover{color:var(--green)}
+.client-type-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;max-width:650px;margin:0 auto}
+.client-type-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:2rem 1.5rem;cursor:pointer;transition:var(--transition);text-align:center}
+.client-type-card:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.client-type-card .ct-icon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.client-type-card .ct-icon svg{width:32px;height:32px;fill:#fff}
+.ct-new .ct-icon{background:var(--green)}
+.ct-existing .ct-icon{background:#7C3AED}
+.client-type-card h3{font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:0.4rem}
+.client-type-card p{font-size:0.85rem;color:var(--muted);line-height:1.5}
+.catalog-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#fff;padding:0.75rem 1.5rem;border-radius:50px;font-size:0.9rem;font-weight:600;transition:transform 0.3s ease;z-index:999}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.view-toggle{display:flex;background:var(--bg);border-radius:50px;padding:4px;border:1px solid var(--border);margin:0 auto 1.5rem;width:fit-content}
+.view-toggle button{padding:0.5rem 1.25rem;border:none;border-radius:50px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:var(--transition);background:transparent;color:var(--muted)}
+.view-toggle button.active{background:var(--green);color:#fff}
+.view-content{display:none}
+.view-content.active{display:block}
+.client-view{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-top:0.5rem}
+.client-view h3{font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:1.25rem}
+.cv-section{margin-bottom:1.25rem}
+.cv-section h4{font-size:0.9rem;font-weight:700;color:var(--green);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem}
+.cv-section h4 svg{width:16px;height:16px;fill:var(--green)}
+.cv-section ul{list-style:none;display:flex;flex-direction:column;gap:0.35rem}
+.cv-section li{font-size:0.85rem;color:var(--slate);padding-left:1.2rem;position:relative;line-height:1.5}
+.cv-section li::before{content:'\2713';position:absolute;left:0;color:var(--green);font-weight:700;font-size:0.8rem}
+.cv-partner-input{display:flex;gap:0.75rem;align-items:center;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.cv-partner-input label{font-size:0.8rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.cv-partner-input input{flex:1;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;font-family:inherit;color:var(--navy)}
+.cv-partner-input input:focus{outline:none;border-color:var(--green)}
+.client-share-actions{display:flex;gap:0.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap}
+@media(max-width:700px){
+  .cards.cols-3{grid-template-columns:repeat(2,1fr)}
+  .cards.cols-4{grid-template-columns:repeat(2,1fr)}
+  header{flex-direction:column;gap:0.75rem}
+  .progress-wrap{margin-left:0;max-width:100%;width:100%}
+  .welcome h1{font-size:1.6rem}
+  .product-card{flex-direction:column}
+}
+@media(max-width:480px){
+  .cards.cols-2,.cards.cols-3,.cards.cols-4{grid-template-columns:repeat(2,1fr)}
+  main{padding:1.5rem 1rem}
+}
+@media print{header,.result-actions,.back-btn{display:none}body{background:#fff}main{padding:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div><div class="logo-text">GEOTAB</div><div class="logo-sub">SELECTOR DE SOLUCIONES | HISPAM</div></div></div>
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+</header>
+<main>
+  <!-- WELCOME -->
+  <div class="screen active" data-screen="welcome">
+    <div class="welcome">
+      <div class="welcome-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <h1>Selector de Soluciones <span>Geotab</span></h1>
+      <p>Encuentra la combinaci&oacute;n ideal de productos Geotab para la flota de tu partner. Responde algunas preguntas y obt&eacute;n una recomendaci&oacute;n personalizada.</p>
+      <button class="btn-start" onclick="startFlow()">Comenzar <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></button>
+      <div class="welcome-options">
+        <button class="btn-link" onclick="goToCatalog()">Ver cat&aacute;logo completo de productos</button>
+      </div>
+    </div>
+  </div>
+  <!-- CLIENT TYPE -->
+  <div class="screen" data-screen="clienttype">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Volver</button>
+    <div class="screen-header"><h2>&iquest;El cliente ya tiene Geotab instalado?</h2><p>Esto nos ayuda a darte la mejor recomendaci&oacute;n</p></div>
+    <div class="client-type-cards">
+      <div class="client-type-card ct-new" onclick="selectClientType('new')">
+        <div class="ct-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
+        <h3>Cliente Nuevo</h3>
+        <p>No tiene Geotab. Necesita dispositivo telem&aacute;tico + plataforma + accesorios.</p>
+      </div>
+      <div class="client-type-card ct-existing" onclick="selectClientType('existing')">
+        <div class="ct-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <h3>Cliente Existente</h3>
+        <p>Ya tiene GO Device y MyGeotab. Quiere agregar c&aacute;maras, sensores o accesorios.</p>
+      </div>
+    </div>
+  </div>
+  <!-- CATALOG -->
+  <div class="screen" data-screen="catalog">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Volver</button>
+    <div class="screen-header"><h2>Cat&aacute;logo Completo de Productos</h2><p>Todos los productos Geotab disponibles para HISPAM</p></div>
+    <div id="catalogList"></div>
+    <div class="result-actions" style="margin-top:1.5rem">
+      <button class="btn-action" onclick="resetFlow()"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>Ir al Selector</button>
+      <button class="btn-secondary" onclick="window.print()">Imprimir</button>
+    </div>
+  </div>
+  <!-- INDUSTRY -->
+  <div class="screen" data-screen="industry">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Volver</button>
+    <div class="screen-header"><h2>&iquest;En qu&eacute; industria opera la flota?</h2><p>Selecciona la vertical principal del cliente de tu partner</p></div>
+    <div class="cards cols-4" id="industryCards">
+      <div class="card" data-value="transporte" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div><div class="card-title">Transporte y Log&iacute;stica</div><div class="card-desc">Carga, distribuci&oacute;n, veh&iacute;culos pesados</div></div>
+      <div class="card" data-value="ultimamilla" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M19 7c0-1.1-.9-2-2-2h-3v2h3v2.65L13.52 14H10V9H6c-2.21 0-4 1.79-4 4v3h2c0 1.66 1.34 3 3 3s3-1.34 3-3h4.48L19 10.35V7zM7 17c-.55 0-1-.45-1-1h2c0 .55-.45 1-1 1z"/><path d="M5 6h5v2H5zm14 7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg></div><div class="card-title">Mensajer&iacute;a y &Uacute;ltima Milla</div><div class="card-desc">Courier, delivery, e-commerce</div></div>
+      <div class="card" data-value="alimentos" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 11h-4.17l3.24-3.24-1.41-1.42L15 11h-2V9l4.66-4.66-1.42-1.41L13 6.17V2h-2v4.17L7.76 2.93 6.34 4.34 11 9v2H9L4.34 6.34 2.93 7.76 6.17 11H2v2h4.17l-3.24 3.24 1.41 1.42L9 13h2v2l-4.66 4.66 1.42 1.41L11 17.83V22h2v-4.17l3.24 3.24 1.42-1.41L13 15v-2h2l4.66 4.66 1.41-1.42L17.83 13H22z"/></svg></div><div class="card-title">Alimentos, Bebidas y Farma</div><div class="card-desc">Cadena de fr&iacute;o, perecederos, salud</div></div>
+      <div class="card" data-value="oilgas" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67z"/></svg></div><div class="card-title">Oil, Gas y Miner&iacute;a</div><div class="card-desc">Operaciones remotas, HSE, minas</div></div>
+      <div class="card" data-value="construccion" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg></div><div class="card-title">Construcci&oacute;n</div><div class="card-desc">Obra civil, equipos pesados</div></div>
+      <div class="card" data-value="gobierno" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg></div><div class="card-title">Gobierno y Sector P&uacute;blico</div><div class="card-desc">Flotas p&uacute;blicas, municipios, emergencias</div></div>
+      <div class="card" data-value="leasing" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div><div class="card-title">Leasing y Arrendamiento</div><div class="card-desc">FMC, renta de veh&iacute;culos, flotas tercerizadas</div></div>
+      <div class="card" data-value="pasajeros" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg></div><div class="card-title">Transporte de Pasajeros</div><div class="card-desc">Buses, transit, movilidad urbana</div></div>
+      <div class="card" data-value="servicios" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg></div><div class="card-title">Servicios de Campo y Utilities</div><div class="card-desc">T&eacute;cnicos, utilities, mantenimiento</div></div>
+      <div class="card" data-value="agro" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M17 12c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm1.65 7.35L16.5 17.2V14h1v2.79l1.85 1.85-.7.71zM18 3h-3.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H6c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h6.11a6.743 6.743 0 01-1.42-2H6V5h2v3h8V5h2v5.08c.71.1 1.38.31 2 .6V5c0-1.1-.9-2-2-2zm-6 2c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg></div><div class="card-title">Agricultura y Bienes de Consumo</div><div class="card-desc">Agro, CPG, retail, distribuci&oacute;n</div></div>
+      <div class="card" data-value="otra" onclick="selectIndustry(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div><div class="card-title">Otra Industria</div><div class="card-desc">Residuos, seguridad p&uacute;blica, otro</div></div>
+    </div>
+  </div>
+  <!-- CHALLENGE -->
+  <div class="screen" data-screen="challenge">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Volver</button>
+    <div class="screen-header"><h2>&iquest;Cu&aacute;l es el principal desaf&iacute;o?</h2><p>Selecciona la necesidad m&aacute;s importante del cliente</p></div>
+    <div class="cards cols-2" id="challengeCards"></div>
+  </div>
+  <!-- VIDEO -->
+  <div class="screen" data-screen="video">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Volver</button>
+    <div class="screen-header"><h2>&iquest;Necesita monitoreo por video?</h2><p>GO Focus Plus es el nuevo lanzamiento de Geotab con doble c&aacute;mara IA</p></div>
+    <div class="cards cols-2" id="videoCards">
+      <div class="card" data-value="dual" onclick="selectVideo(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98z"/></svg></div><div class="card-title">S&iacute;, GO Focus Plus</div><div class="card-desc">Doble c&aacute;mara IA (road + driver), coaching en cabina, ADAS+DMS. Reduce tailgating 90% y uso de celular 95%.</div></div>
+      <div class="card" data-value="none" onclick="selectVideo(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M21 6.5l-4 4V7c0-.55-.45-1-1-1H9.82L21 17.18V6.5zM3.27 2L2 3.27 4.73 6H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.21 0 .39-.08.54-.18L19.73 21 21 19.73 3.27 2z"/></svg></div><div class="card-title">No por el momento</div><div class="card-desc">Solo telem&aacute;tica base, sin c&aacute;mara. Se puede agregar despu&eacute;s.</div></div>
+    </div>
+  </div>
+  <!-- ADDITIONALS -->
+  <div class="screen" data-screen="additionals">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Volver</button>
+    <div class="screen-header"><h2>&iquest;Necesita funcionalidades adicionales?</h2><p>Selecciona todas las que apliquen (opcional)</p></div>
+    <div class="cards cols-3" id="additionalCards">
+      <div class="card toggle-card" data-value="coldchain" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M15 13V5c0-1.66-1.34-3-3-3S9 3.34 9 5v8c-1.21.91-2 2.37-2 4 0 2.76 2.24 5 5 5s5-2.24 5-5c0-1.63-.79-3.09-2-4z"/></svg></div><div class="card-title">Cadena de Fr&iacute;o</div><div class="card-desc">IOX-COLD, Didcom, monitoreo temp</div></div>
+      <div class="card toggle-card" data-value="asset" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z"/></svg></div><div class="card-title">Rastreo de Activos</div><div class="card-desc">GO Anywhere, StealthNet, SolarNet, AssetTrac</div></div>
+      <div class="card toggle-card" data-value="panic" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><div class="card-title">Bot&oacute;n de P&aacute;nico</div><div class="card-desc">IOX-ALERT, emergencias</div></div>
+      <div class="card toggle-card" data-value="driverid" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div class="card-title">ID de Conductor</div><div class="card-desc">IOX-NFC, identificaci&oacute;n por tarjeta</div></div>
+      <div class="card toggle-card" data-value="coaching" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div><div class="card-title">Coaching Verbal</div><div class="card-desc">IOX-GO TALK, retroalimentaci&oacute;n en ruta</div></div>
+      <div class="card toggle-card" data-value="rugged" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div><div class="card-title">Ambiente Extremo</div><div class="card-desc">GO Rugged, IP68, montaje externo</div></div>
+      <div class="card toggle-card" data-value="keyless" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg></div><div class="card-title">Movilidad Compartida</div><div class="card-desc">IOX-Keyless, car-sharing, pool</div></div>
+      <div class="card toggle-card" data-value="keybox" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM15.1 8H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></div><div class="card-title">Gesti&oacute;n de Llaves</div><div class="card-desc">IOX-KEYBOX, control de acceso</div></div>
+      <div class="card toggle-card" data-value="ev" onclick="toggleAdditional(this)"><div class="check-mark"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div><div class="card-title">Veh&iacute;culos El&eacute;ctricos</div><div class="card-desc">Sustainability Center, carga EV</div></div>
+    </div>
+    <div class="action-bar"><button class="btn-action" onclick="showResult()">Ver Recomendaci&oacute;n <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></button></div>
+  </div>
+  <!-- RESULT -->
+  <div class="screen" data-screen="result">
+    <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Volver</button>
+    <div class="result-header"><div class="result-badge" id="resultBadge"></div><h2>Soluci&oacute;n Recomendada</h2><p id="resultSubtitle"></p></div>
+    <div class="view-toggle" id="viewToggle">
+      <button class="active" onclick="switchView('partner',this)">Para el Partner</button>
+      <button onclick="switchView('client',this)">Para su Cliente</button>
+    </div>
+    <!-- PARTNER VIEW -->
+    <div class="view-content active" id="partnerView">
+      <div id="productList"></div>
+      <div class="talking-points" id="talkingPoints"><h3><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Puntos Clave de Venta</h3><ul id="talkingList"></ul></div>
+      <div class="result-actions">
+        <button class="btn-whatsapp" onclick="shareWhatsApp()"><svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.476A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818c-2.168 0-4.19-.583-5.936-1.6l-.425-.253-2.744.877.878-2.697-.277-.44A9.77 9.77 0 012.182 12c0-5.423 4.395-9.818 9.818-9.818S21.818 6.577 21.818 12 17.423 21.818 12 21.818z"/></svg>WhatsApp</button>
+        <button class="btn-email" onclick="shareEmail()"><svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.89 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Email</button>
+        <button class="btn-copy" onclick="copyResult()"><svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copiar</button>
+        <button class="btn-action" onclick="resetFlow()"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>Nueva Consulta</button>
+        <button class="btn-secondary" onclick="window.print()">Imprimir</button>
+      </div>
+    </div>
+    <!-- CLIENT VIEW -->
+    <div class="view-content" id="clientView">
+      <div class="client-view" id="clientViewContent"></div>
+      <div class="client-share-actions">
+        <button class="btn-whatsapp" onclick="shareClientWhatsApp()"><svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.476A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818c-2.168 0-4.19-.583-5.936-1.6l-.425-.253-2.744.877.878-2.697-.277-.44A9.77 9.77 0 012.182 12c0-5.423 4.395-9.818 9.818-9.818S21.818 6.577 21.818 12 17.423 21.818 12 21.818z"/></svg>Enviar por WhatsApp</button>
+        <button class="btn-email" onclick="shareClientEmail()"><svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.89 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Enviar por Email</button>
+        <button class="btn-copy" onclick="copyClientResult()"><svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copiar Texto</button>
+        <button class="btn-action" onclick="resetFlow()"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>Nueva Consulta</button>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const IC={truck:'M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z',shield:'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z',doc:'M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z',clock:'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z',check:'M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5 12 21.04l3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12z',target:'M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06z',wrench:'M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z',box:'M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z',plus:'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z',thermo:'M15 13V5c0-1.66-1.34-3-3-3S9 3.34 9 5v8c-1.21.91-2 2.37-2 4 0 2.76 2.24 5 5 5s5-2.24 5-5c0-1.63-.79-3.09-2-4z',cam:'M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98z',layers:'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',person:'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',bolt:'M7 2v11h3v9l7-12h-4l4-8z',chat:'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z',key:'M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z',lock:'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM15.1 8H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z',data:'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z'};
+
+const CHALLENGES={
+  transporte:[
+    {value:'seguridad',title:'Seguridad vial y prevenci\u00f3n de accidentes',desc:'Reducir colisiones, comportamiento riesgoso',icon:IC.shield},
+    {value:'eficiencia',title:'Eficiencia de combustible y costos',desc:'Optimizar consumo, reducir ralent\u00ed, controlar gastos',icon:IC.plus},
+    {value:'cumplimiento',title:'Cumplimiento normativo',desc:'Regulaciones de transporte, horas de servicio',icon:IC.doc},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Diagn\u00f3stico motor, consumo real, datos v\u00eda API/SDK',icon:IC.data}
+  ],
+  ultimamilla:[
+    {value:'productividad',title:'Productividad y entregas por d\u00eda',desc:'M\u00e1s entregas, menos tiempo muerto, rutas \u00f3ptimas',icon:IC.clock},
+    {value:'visibilidad',title:'Visibilidad en tiempo real',desc:'ETAs para clientes, prueba de entrega',icon:IC.target},
+    {value:'costos',title:'Reducci\u00f3n de costos operativos',desc:'Combustible, mantenimiento, uso no autorizado',icon:IC.plus},
+    {value:'seguridad',title:'Seguridad del conductor y paquete',desc:'Prevenci\u00f3n de robos, protecci\u00f3n del repartidor',icon:IC.shield}
+  ],
+  alimentos:[
+    {value:'temperatura',title:'Control de temperatura en tr\u00e1nsito',desc:'Monitoreo continuo, alertas de desviaci\u00f3n',icon:IC.thermo},
+    {value:'regulatorio',title:'Cumplimiento regulatorio sanitario',desc:'Trazabilidad, evidencia para auditor\u00edas, HACCP',icon:IC.check},
+    {value:'visibilidad',title:'Visibilidad de activos refrigerados',desc:'Ubicaci\u00f3n de trailers, contenedores refrigerados',icon:IC.target},
+    {value:'seguridad',title:'Seguridad y prevenci\u00f3n de p\u00e9rdidas',desc:'Proteger carga valiosa, evitar robos',icon:IC.shield}
+  ],
+  oilgas:[
+    {value:'seguridad',title:'Seguridad en zonas remotas',desc:'Rutas peligrosas, condiciones extremas',icon:IC.shield},
+    {value:'hse',title:'Cumplimiento HSE',desc:'Health, Safety & Environment, auditor\u00edas',icon:IC.check},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Datos de motor J1939, consumo real, emisiones, API',icon:IC.data},
+    {value:'activos',title:'Control de activos y maquinaria',desc:'Ubicaci\u00f3n, horas de uso, mantenimiento',icon:IC.box}
+  ],
+  construccion:[
+    {value:'seguridad',title:'Seguridad en sitios de obra',desc:'Prevenci\u00f3n de accidentes, zonas de riesgo',icon:IC.shield},
+    {value:'rastreo',title:'Rastreo de equipos y maquinaria',desc:'D\u00f3nde est\u00e1n, qui\u00e9n los usa, cu\u00e1ntas horas',icon:IC.target},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Horas motor reales, diagn\u00f3stico, datos para facturaci\u00f3n',icon:IC.data},
+    {value:'mantenimiento',title:'Mantenimiento preventivo',desc:'Alertas de servicio, diagn\u00f3stico motor',icon:IC.wrench}
+  ],
+  gobierno:[
+    {value:'transparencia',title:'Transparencia y rendici\u00f3n de cuentas',desc:'Reportes p\u00fablicos, uso eficiente',icon:IC.doc},
+    {value:'seguridad',title:'Seguridad de operadores',desc:'Protecci\u00f3n de conductores, emergencias',icon:IC.shield},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Reportes de km, consumo, emisiones para pol\u00edticas p\u00fablicas',icon:IC.data},
+    {value:'cumplimiento',title:'Cumplimiento de pol\u00edticas internas',desc:'Reglas de conducci\u00f3n, geozonas, horarios',icon:IC.check}
+  ],
+  leasing:[
+    {value:'valoragregado',title:'Telem\u00e1tica como valor agregado',desc:'Ofrecer Geotab como servicio complementario al leasing',icon:IC.layers},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Km reales, diagn\u00f3stico motor, datos para contratos y facturaci\u00f3n',icon:IC.data},
+    {value:'activos',title:'Control y protecci\u00f3n de activos',desc:'Ubicaci\u00f3n, uso, mantenimiento de la flota arrendada',icon:IC.box},
+    {value:'reporte',title:'Reportes para clientes finales',desc:'Dashboards, KPIs, informes de flota por cliente',icon:IC.doc}
+  ],
+  pasajeros:[
+    {value:'seguridad',title:'Seguridad de pasajeros y conductores',desc:'Video IA, alertas, comportamiento vial',icon:IC.shield},
+    {value:'eficiencia',title:'Eficiencia operativa y puntualidad',desc:'Rutas, tiempos, frecuencias, consumo',icon:IC.clock},
+    {value:'cumplimiento',title:'Cumplimiento regulatorio',desc:'Velocidad, horarios, zonas autorizadas',icon:IC.doc},
+    {value:'mantenimiento',title:'Disponibilidad y mantenimiento',desc:'Uptime de unidades, mantenimiento preventivo',icon:IC.wrench}
+  ],
+  servicios:[
+    {value:'productividad',title:'Productividad de t\u00e9cnicos en campo',desc:'Tiempo en sitio, rutas, ETAs',icon:IC.clock},
+    {value:'costos',title:'Reducci\u00f3n de costos de flota',desc:'Combustible, mantenimiento, uso eficiente',icon:IC.plus},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Datos de motor, consumo, ubicaci\u00f3n precisa, API/SDK',icon:IC.data},
+    {value:'mantenimiento',title:'Mantenimiento preventivo y uptime',desc:'Alertas de servicio, diagn\u00f3stico motor',icon:IC.wrench}
+  ],
+  agro:[
+    {value:'productividad',title:'Productividad de flota agr\u00edcola',desc:'Uso de maquinaria, horas motor, cobertura',icon:IC.clock},
+    {value:'distribucion',title:'Distribuci\u00f3n y log\u00edstica',desc:'Entrega de producto, rutas, cadena de fr\u00edo',icon:IC.truck},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Horas motor reales, consumo, diagn\u00f3stico de maquinaria',icon:IC.data},
+    {value:'costos',title:'Reducci\u00f3n de costos operativos',desc:'Combustible, mantenimiento, uso eficiente',icon:IC.plus}
+  ],
+  otra:[
+    {value:'visibilidad',title:'Visibilidad y control de flota',desc:'Saber d\u00f3nde est\u00e1n, qu\u00e9 hacen, en tiempo real',icon:IC.target},
+    {value:'seguridad',title:'Seguridad vial y de conductores',desc:'Prevenci\u00f3n de accidentes, protecci\u00f3n',icon:IC.shield},
+    {value:'datos',title:'Datos precisos e inteligencia',desc:'Diagn\u00f3stico motor, consumo, emisiones, integraci\u00f3n API',icon:IC.data},
+    {value:'cumplimiento',title:'Cumplimiento y auditor\u00eda',desc:'Regulaciones, reportes, evidencia',icon:IC.doc}
+  ]
+};
+
+const INDUSTRY_LABELS={transporte:'Transporte y Log\u00edstica',ultimamilla:'Mensajer\u00eda y \u00daltima Milla',alimentos:'Alimentos, Bebidas y Farma',oilgas:'Oil, Gas y Miner\u00eda',construccion:'Construcci\u00f3n',gobierno:'Gobierno y Sector P\u00fablico',leasing:'Leasing y Arrendamiento',pasajeros:'Transporte de Pasajeros',servicios:'Servicios de Campo y Utilities',agro:'Agricultura y Bienes de Consumo',otra:'Otra Industria'};
+
+const P={
+  go:{name:'GO Device + MyGeotab',cat:'BASE TELEM\u00c1TICA',cls:'base',desc:'Dispositivo telem\u00e1tico con GPS, diagn\u00f3stico de motor, comportamiento del conductor, reportes avanzados y alertas. Se conecta al puerto OBD II.',features:['GPS tiempo real','Diagn\u00f3stico motor','Reglas y alertas','Reportes','Geozonas'],icon:IC.layers},
+  goRugged:{name:'GO Rugged + MyGeotab',cat:'BASE TELEM\u00c1TICA RUGGEDIZADA',cls:'base',desc:'Dispositivo telem\u00e1tico IP68/IP69K para ambientes extremos. Montaje externo, cableado directo. Para veh\u00edculos sin OBD, maquinaria pesada, equipos off-road.',features:['IP68/IP69K','Montaje externo','Sin OBD requerido','Ambientes extremos','Cableado directo'],icon:IC.shield},
+  focusPlus:{name:'GO Focus Plus',cat:'C\u00c1MARA IA GEOTAB',cls:'camera',desc:'Doble c\u00e1mara (road + driver) con IA. Detecta fatiga, distracci\u00f3n, tailgating y freno brusco. Alertas de voz en cabina. Reduce tailgating 90% y uso de celular 95%.',features:['Doble c\u00e1mara IA','ADAS + DMS','Coaching en cabina','Smart Sequence\u2122','128GB'],icon:IC.cam},
+
+
+  coldchain:{name:'IOX-COLD + Cold Chain Management',cat:'CADENA DE FR\u00cdO',cls:'cold',desc:'Monitoreo de temperatura multi-zona en tiempo real. Alertas de desviaci\u00f3n, control remoto de setpoints, historial para auditor\u00edas. Versi\u00f3n RUGGED (IP67) disponible.',features:['Temperatura multi-zona','Alertas tiempo real','Control remoto','Auditor\u00eda','IP67 RUGGED'],icon:IC.thermo},
+  didcom:{name:'Didcom TPM / BLEG',cat:'CADENA DE FR\u00cdO - MARKETPLACE',cls:'marketplace',desc:'Monitor de temperatura Didcom para cadena de fr\u00edo. TPM (cableado) y BLEG (Bluetooth wireless). Supervisi\u00f3n de mercanc\u00edas sensibles, cumplimiento regulatorio. Marketplace.',features:['Bluetooth wireless','Multi-zona','Cumplimiento','Sensores expandibles','Marketplace'],icon:IC.thermo},
+  goAnywhere:{name:'GO Anywhere',cat:'RASTREO DE ACTIVOS - GEOTAB',cls:'asset',desc:'Tracker Geotab compacto y resistente para activos sin motor. Bater\u00eda de larga duraci\u00f3n, integrado nativamente con MyGeotab. Modo est\u00e1ndar (diario) o inmediato.',features:['Nativo Geotab','Bater\u00eda larga duraci\u00f3n','Dos modos','IP67','Compacto'],icon:IC.target},
+  stealthnet:{name:'StealthNet',cat:'RASTREO DE ACTIVOS - PHILLIPS CONNECT',cls:'asset',desc:'Tracker cableado covert para rastreo 24/7 de trailers y activos. Modelos: Black, 12V, 12V Connected, ABS 4P, ABS 5P. Alimentaci\u00f3n directa del trailer.',features:['Rastreo 24/7','Cableado covert','Alimentaci\u00f3n trailer','M\u00faltiples modelos','Phillips Connect'],icon:IC.target},
+  solarnet:{name:'SolarNet',cat:'RASTREO DE ACTIVOS - PHILLIPS CONNECT',cls:'asset',desc:'Tracker solar expandible. Sin cables, sin bater\u00edas que cambiar. Ideal para trailers, contenedores, equipos estacionarios de larga duraci\u00f3n.',features:['Solar powered','Sin bater\u00edas','Expandible','Larga duraci\u00f3n','Phillips Connect'],icon:IC.target},
+  assettrac:{name:'AssetTrac',cat:'RASTREO DE ACTIVOS - PHILLIPS CONNECT',cls:'asset',desc:'Instalaci\u00f3n r\u00e1pida sin taladro (drill-free). Bater\u00eda extendida. Para activos que necesitan monitoreo r\u00e1pido sin instalaci\u00f3n compleja.',features:['Sin taladro','Bater\u00eda extendida','Instalaci\u00f3n r\u00e1pida','Drill-free','Phillips Connect'],icon:IC.target},
+  eztrac:{name:'EZ-Trac',cat:'RASTREO DE ACTIVOS - PHILLIPS CONNECT',cls:'asset',desc:'El tracker m\u00e1s sencillo de instalar de Phillips Connect. Para flotas que necesitan rastreo b\u00e1sico r\u00e1pido de activos.',features:['Ultra-f\u00e1cil','Instalaci\u00f3n r\u00e1pida','Rastreo b\u00e1sico','Econ\u00f3mico','Phillips Connect'],icon:IC.target},
+  ioxAlert:{name:'IOX-ALERT',cat:'ACCESORIO IOX',cls:'iox',desc:'Bot\u00f3n de emergencia para conductores. Env\u00eda alerta instant\u00e1nea al despachador con ubicaci\u00f3n GPS exacta.',features:['Bot\u00f3n de p\u00e1nico','Alerta instant\u00e1nea','GPS exacto','F\u00e1cil instalaci\u00f3n'],icon:IC.shield},
+  ioxNfc:{name:'IOX-NFCREADER',cat:'ACCESORIO IOX',cls:'iox',desc:'Identificaci\u00f3n de conductor por tarjeta NFC. Asocia cada viaje al conductor correcto para reportes y coaching individual.',features:['ID por NFC','Viajes por conductor','Coaching individual','Responsabilidad'],icon:IC.person},
+  ioxGoTalk:{name:'IOX-GO TALK',cat:'ACCESORIO IOX',cls:'iox',desc:'Retroalimentaci\u00f3n por voz en tiempo real sobre h\u00e1bitos de conducci\u00f3n. Mejora comportamiento sin intervenci\u00f3n del gerente.',features:['Voz tiempo real','Mejora h\u00e1bitos','Sin intervenci\u00f3n manual','En ruta'],icon:IC.chat},
+  ioxKeyless:{name:'IOX-Keyless',cat:'ACCESORIO IOX',cls:'iox',desc:'Soluci\u00f3n de movilidad compartida. Control de acceso al veh\u00edculo sin llave f\u00edsica. Para flotas compartidas, car-sharing, pool vehicles.',features:['Sin llave f\u00edsica','Control acceso','Car-sharing','Pool vehicles'],icon:IC.key},
+  ioxKeybox:{name:'IOX-KEYBOX',cat:'ACCESORIO IOX',cls:'iox',desc:'Gesti\u00f3n segura de llaves del veh\u00edculo. Control de qui\u00e9n accede a qu\u00e9 veh\u00edculo. Para flotas con m\u00faltiples conductores por veh\u00edculo.',features:['Gesti\u00f3n llaves','Control acceso','Seguridad','Multi-conductor'],icon:IC.lock},
+  ioxBattery:{name:'IOX-Battery',cat:'ACCESORIO IOX',cls:'iox',desc:'Respaldo de bater\u00eda para GO device. Mantiene rastreo incluso cuando se desconecta el veh\u00edculo. Seguridad anti-robo.',features:['Respaldo bater\u00eda','Anti-robo','Rastreo continuo','Seguridad'],icon:IC.bolt},
+  ioxBT:{name:'IOX-BT',cat:'ACCESORIO IOX',cls:'iox',desc:'Gateway Bluetooth para rastreo de activos peque\u00f1os (herramientas, inventario, equipos) a trav\u00e9s de beacons BLE conectados al GO device.',features:['Bluetooth beacons','Herramientas','Inventario','BLE'],icon:IC.target},
+  ioxClamp:{name:'IOX-CLAMP',cat:'ACCESORIO IOX',cls:'iox',desc:'Conector de expansi\u00f3n IOX. Permite conectar m\u00faltiples accesorios IOX al mismo GO device cuando se necesitan dos o m\u00e1s expansiones.',features:['Multi-IOX','Expansi\u00f3n','Conector','Modular'],icon:IC.plus},
+  evCenter:{name:'Sustainability Center',cat:'ADD-IN MYGEOTAB',cls:'addon',desc:'Plataforma para monitorear consumo, emisiones, ralent\u00ed y potencial de electrificaci\u00f3n. Gestiona carga de veh\u00edculos el\u00e9ctricos.',features:['Emisiones','Carga EV','Electrificaci\u00f3n','Reportes verdes'],icon:IC.bolt}
+};
+
+function pCard(key){const p=P[key];return`<div class="product-card"><div class="p-icon ${p.cls}"><svg viewBox="0 0 24 24"><path d="${p.icon}"/></svg></div><div class="p-info"><div style="font-size:0.65rem;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:2px">${p.cat}</div><h3>${p.name}</h3><p>${p.desc}</p><div class="p-features">${p.features.map(f=>`<span class="feature-chip">${f}</span>`).join('')}</div></div></div>`;}
+
+const TALKING_POINTS={
+  transporte:{
+    seguridad:['Los nuclear verdicts en LATAM est\u00e1n creciendo \u2014 el video es evidencia cr\u00edtica','GO Focus Plus reduce tailgating 90% y uso de celular 95%','Coaching en cabina corrige comportamiento en el momento','MyGeotab centraliza datos de riesgo y video'],
+    eficiencia:['MyGeotab identifica conductores con alto ralent\u00ed y consumo excesivo','Reportes de combustible por conductor, ruta y veh\u00edculo','Alertas de uso no autorizado y desv\u00edo de ruta','ROI medible: 15-25% reducci\u00f3n en costos de combustible'],
+    cumplimiento:['Registro autom\u00e1tico de horas de servicio, DVIR digital','Reportes listos para auditor\u00edas y reguladores','Geozonas para control de zonas autorizadas','Historial completo de viajes, paradas y eventos'],
+    datos:['GO Device lee +200 par\u00e1metros de motor v\u00eda OBD-II y J1939/J1708','Consumo real de combustible, RPM, temperatura de motor, voltaje','SDK y API abierta: integrar datos Geotab con sistemas propios del cliente','MyGeotab como plataforma de datos: dashboards, reglas, exportaci\u00f3n masiva']
+  },
+  ultimamilla:{
+    productividad:['M\u00e1s entregas por d\u00eda con rutas optimizadas y control de tiempos','Verificaci\u00f3n autom\u00e1tica de paradas y tiempo en cada entrega','Datos hist\u00f3ricos para planificar mejor las rutas','Integraci\u00f3n con dispatch y routing del Marketplace'],
+    visibilidad:['Tracking en tiempo real para dar ETAs exactos al cliente final','Prueba de entrega: ubicaci\u00f3n + hora + tiempo en sitio','Alertas de desv\u00edo de ruta o paradas no programadas','Dashboard unificado para supervisores'],
+    costos:['Control de combustible y ralent\u00ed en paradas','Mantenimiento preventivo para evitar downtime costoso','Detecci\u00f3n de uso personal de veh\u00edculos de reparto','Optimizar tama\u00f1o de flota con datos de utilizaci\u00f3n'],
+    seguridad:['GO Focus Plus protege al repartidor con video IA','IOX-ALERT: bot\u00f3n de p\u00e1nico para zonas de riesgo','Scoring de conductores para mejorar comportamiento','Evidencia visual para reclamos de seguros y robos']
+  },
+  alimentos:{
+    temperatura:['IOX-COLD monitorea temperatura multi-zona en tiempo real','Alertas instant\u00e1neas antes de que la carga se da\u00f1e','Control remoto de setpoints sin depender del conductor','Didcom TPM/BLEG ofrece opci\u00f3n Bluetooth wireless expandible'],
+    regulatorio:['Registros autom\u00e1ticos para cumplir regulaciones sanitarias','Evidencia digital: ubicaci\u00f3n + temperatura + tiempo','Trazabilidad completa desde origen hasta destino','Reportes exportables para autoridades'],
+    visibilidad:['GO Anywhere rastrea trailers refrigerados sin motor','StealthNet para rastreo 24/7 cableado directo','SolarNet para tracking solar sin bater\u00edas','Alertas de movimiento no autorizado'],
+    seguridad:['Video protege la carga valiosa y al conductor','Monitoreo de puertas, paradas no programadas','IOX-ALERT para emergencias con carga de alto valor','Evidencia visual para reclamos de seguros']
+  },
+  oilgas:{
+    seguridad:['GO Rugged resiste ambientes extremos IP68/IP69K','Video IA detecta fatiga en distancias largas','IOX-ALERT para emergencias en zonas remotas','GO Focus Plus da alertas de voz en carreteras peligrosas'],
+    hse:['Reportes autom\u00e1ticos de eventos para HSE','Video como evidencia para investigaci\u00f3n de incidentes','Scoring de conductores para programas de seguridad','Datos exportables para auditor\u00edas y certificaciones'],
+    datos:['Datos de motor J1939 para flota pesada: consumo real, RPM, presi\u00f3n de aceite, temperatura','Integraci\u00f3n v\u00eda SDK/API con sistemas SCADA, ERP y plataformas HSE del cliente','Datos de emisi\u00f3n para reportes ESG y cumplimiento ambiental','MyGeotab como data warehouse vehicular: exporta datos masivos para an\u00e1lisis avanzado'],
+    activos:['GO Anywhere rastrea maquinaria, generadores, equipos','StealthNet para rastreo covert 24/7 de activos valiosos','Control de horas de operaci\u00f3n para mantenimiento','Geozonas para detectar uso no autorizado']
+  },
+  construccion:{
+    seguridad:['Video detecta comportamiento riesgoso en sitios de obra','GO Rugged para equipos en ambientes extremos','IOX-ALERT para emergencias en sitios remotos','Registros de seguridad para auditor\u00edas de obra'],
+    rastreo:['GO Anywhere + StealthNet para maquinaria y equipos','SolarNet para tracking solar de equipos estacionarios','Geozonas de proyecto: saber si el equipo est\u00e1 en sitio','IOX-BT para rastrear herramientas peque\u00f1as con beacons'],
+    datos:['Horas de motor reales v\u00eda OBD-II/J1939 para facturaci\u00f3n precisa','Diagn\u00f3stico de maquinaria: c\u00f3digos de falla, RPM, temperatura, voltaje','SDK/API para integrar datos de equipos con ERP y sistemas de proyecto','Datos de consumo real para reportes de costos por obra/proyecto'],
+    mantenimiento:['Alertas autom\u00e1ticas por km, horas o diagn\u00f3stico','C\u00f3digos de motor en tiempo real','Historial de mantenimiento integrado','Reducci\u00f3n de downtime y costos de emergencia']
+  },
+  gobierno:{
+    transparencia:['Reportes autom\u00e1ticos de uso de veh\u00edculos p\u00fablicos','Evidencia de km, rutas, paradas para rendici\u00f3n de cuentas','Dashboard compartible con autoridades','Detecci\u00f3n de uso personal no autorizado'],
+    seguridad:['GO Focus Plus protege a los operadores p\u00fablicos','Alertas de exceso de velocidad y conducci\u00f3n riesgosa','IOX-ALERT para emergencias de personal en campo','Scoring de conductores para capacitaci\u00f3n'],
+    datos:['Datos precisos de km, consumo, emisiones para pol\u00edticas p\u00fablicas y reportes','Integraci\u00f3n v\u00eda API con sistemas de gobierno para transparencia de datos','Reportes de emisiones y consumo para cumplimiento de regulaciones ambientales','Dashboard de datos masivos para toma de decisiones basada en evidencia'],
+    cumplimiento:['Reglas autom\u00e1ticas: velocidad, horario, geozonas','Notificaciones instant\u00e1neas a supervisores','Reportes de excepciones para auditor\u00edas','Historial completo para investigaciones']
+  },
+  leasing:{
+    valoragregado:['Geotab como diferenciador: ofrecer telem\u00e1tica integrada al contrato de leasing','M\u00e1s de 500,000 veh\u00edculos de leasing ya usan Geotab globalmente','API abierta para integrar con sistemas propios del FMC','Marketplace para expandir soluciones seg\u00fan el cliente final'],
+    datos:['Km reales y horas de motor v\u00eda OBD-II para verificar t\u00e9rminos del contrato','Diagn\u00f3stico de motor para detectar mal uso y proteger el valor residual','API abierta para alimentar sistemas de facturaci\u00f3n, ERP y CRM del FMC','Datos de consumo y emisiones como servicio diferenciador para clientes finales'],
+    activos:['Ubicaci\u00f3n 24/7 de toda la flota arrendada','IOX-Battery para protecci\u00f3n anti-robo y rastreo continuo','Alertas de movimiento no autorizado fuera de horario','Control de km y uso para verificar t\u00e9rminos del contrato'],
+    reporte:['Dashboards personalizados por cliente en MyGeotab','Reportes autom\u00e1ticos de combustible, km, mantenimiento','Scoring de conductores para programas de seguridad del cliente','Exportaci\u00f3n de datos para facturaci\u00f3n y auditor\u00eda']
+  },
+  pasajeros:{
+    seguridad:['GO Focus Plus con coaching de voz para conductores de bus','Video IA detecta fatiga y distracci\u00f3n en rutas largas','Alertas de exceso de velocidad en zonas escolares y urbanas','Evidencia visual para incidentes con pasajeros'],
+    eficiencia:['Control de consumo de combustible por ruta y conductor','An\u00e1lisis de frecuencias y tiempos de recorrido','Reducci\u00f3n de ralent\u00ed en terminales y paradas','Datos para optimizar la programaci\u00f3n de servicios'],
+    cumplimiento:['Geozonas para rutas autorizadas y paradas obligatorias','Reglas de velocidad por zona (escolar, urbana, carretera)','Historial completo para auditor\u00edas de transporte p\u00fablico','Reportes exportables para autoridades de tr\u00e1nsito'],
+    mantenimiento:['Alertas autom\u00e1ticas para no perder servicios de mantenimiento','C\u00f3digos de motor en tiempo real para prevenir varadas','Historial por unidad para planificar renovaci\u00f3n de flota','Reducir downtime: cada bus parado es ingreso perdido']
+  },
+  servicios:{
+    productividad:['Verificaci\u00f3n autom\u00e1tica de llegada a sitio','ETAs precisos basados en ubicaci\u00f3n real','Tiempo en sitio vs. tr\u00e1nsito por t\u00e9cnico','Asignaci\u00f3n del t\u00e9cnico m\u00e1s cercano'],
+    costos:['Identificar conductores con alto consumo','Mantenimiento preventivo para evitar reparaciones costosas','Control de uso personal de veh\u00edculos','An\u00e1lisis de utilizaci\u00f3n: \u00bfsobran o faltan veh\u00edculos?'],
+    datos:['Datos de motor y veh\u00edculo para optimizar mantenimiento preventivo de flota','Integraci\u00f3n v\u00eda SDK/API con sistemas de dispatch y gesti\u00f3n de \u00f3rdenes','Datos de consumo real para reportes de costos por ruta y veh\u00edculo','Geolocation API precisa para an\u00e1lisis avanzado de cobertura y eficiencia'],
+    mantenimiento:['C\u00f3digos de falla del motor en tiempo real','Alertas por km, tiempo o diagn\u00f3stico','Historial de mantenimiento por veh\u00edculo','Reducci\u00f3n de downtime de veh\u00edculos de servicio']
+  },
+  agro:{
+    productividad:['Control de horas de motor de tractores y maquinaria','Geozonas de parcela para verificar cobertura de campo','Reportes de utilizaci\u00f3n real vs. esperada','GO Rugged para maquinaria sin OBD en ambientes extremos'],
+    distribucion:['Visibilidad en tiempo real de camiones de distribuci\u00f3n','IOX-COLD para productos que requieren cadena de fr\u00edo','Prueba de entrega: ubicaci\u00f3n + hora + tiempo en destino','Optimizaci\u00f3n de rutas de carga y descarga'],
+    datos:['Horas de motor reales de tractores y maquinaria v\u00eda J1939/OBD-II','Diagn\u00f3stico de maquinaria agr\u00edcola: c\u00f3digos de falla, RPM, consumo','Datos de cobertura de parcela con GPS de alta precisi\u00f3n','API para integrar con plataformas de agricultura de precisi\u00f3n'],
+    costos:['Control de combustible real vs. esperado por maquinaria','Mantenimiento preventivo basado en horas de operaci\u00f3n','Detecci\u00f3n de ralent\u00ed excesivo en sitios de carga','An\u00e1lisis de right-sizing para optimizar la flota']
+  },
+  otra:{
+    visibilidad:['MyGeotab muestra toda la flota en tiempo real en un solo mapa','Alertas autom\u00e1ticas de eventos cr\u00edticos','Reportes de utilizaci\u00f3n, km, paradas y tiempos','Geozonas para control de \u00e1reas de operaci\u00f3n'],
+    seguridad:['GO Focus Plus detecta riesgos con IA antes de que ocurra un accidente','Scoring de conductores para programas de mejora','IOX-ALERT para emergencias con respuesta inmediata','Video como evidencia para reclamos y auditor\u00edas'],
+    datos:['GO Device lee +200 par\u00e1metros de motor v\u00eda OBD-II y J1939','Datos de consumo real, emisiones, RPM, voltaje, c\u00f3digos de falla','SDK y API abierta para integrar con cualquier sistema o plataforma','MyGeotab: exportaci\u00f3n masiva de datos, reglas y dashboards personalizados'],
+    cumplimiento:['Reportes autom\u00e1ticos exportables para auditor\u00edas','Historial completo de viajes, paradas y eventos','Reglas personalizables: velocidad, horarios, geozonas','Evidencia digital para reguladores y aseguradoras']
+  }
+};
+
+// STATE
+let state={screen:'welcome',clientType:null,industry:null,challenge:null,video:null,additionals:[],history:[]};
+const STEPS=['clienttype','industry','challenge','video','additionals','result'];
+
+function goToScreen(name){state.history.push(state.screen);state.screen=name;renderScreen();}
+function goBack(){if(!state.history.length)return;state.screen=state.history.pop();if(state.screen==='welcome'){state.clientType=null;state.industry=null;state.challenge=null;state.video=null;state.additionals=[];document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'));}if(state.screen==='clienttype'){state.industry=null;state.challenge=null;state.video=null;state.additionals=[];}if(state.screen==='industry'){state.challenge=null;state.video=null;state.additionals=[];}if(state.screen==='challenge'){state.video=null;state.additionals=[];}if(state.screen==='video'){state.additionals=[];document.querySelectorAll('#additionalCards .card.selected').forEach(c=>c.classList.remove('selected'));}renderScreen();}
+function renderScreen(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.querySelector(`[data-screen="${state.screen}"]`);if(el){el.classList.remove('active');void el.offsetWidth;el.classList.add('active');}updateProgress();}
+function updateProgress(){const w=document.getElementById('progressWrap'),f=document.getElementById('progressFill'),l=document.getElementById('progressLabel');if(state.screen==='welcome'||state.screen==='catalog'){w.style.display='none';return;}w.style.display='block';const steps=state.challenge==='datos'?STEPS.filter(s=>s!=='video'):STEPS;const i=steps.indexOf(state.screen);const pct=i>=0?Math.round(((i+1)/steps.length)*100):0;f.style.width=pct+'%';l.textContent=`Paso ${i+1} de ${steps.length}`;}
+function startFlow(){goToScreen('clienttype');}
+function selectClientType(type){state.clientType=type;goToScreen('industry');}
+function goToCatalog(){const el=document.getElementById('catalogList');const groups={
+  'Dispositivos Telem\u00e1ticos':['go','goRugged'],
+  'C\u00e1maras y Video IA':['focusPlus'],
+  'Cadena de Fr\u00edo':['coldchain','didcom'],
+  'Rastreo de Activos':['goAnywhere','stealthnet','solarnet','assettrac','eztrac'],
+  'Accesorios IOX':['ioxAlert','ioxNfc','ioxGoTalk','ioxKeyless','ioxKeybox','ioxBattery','ioxBT','ioxClamp'],
+  'Add-Ins MyGeotab':['evCenter']
+};let html='';for(const[group,keys]of Object.entries(groups)){html+=`<div class="group-header">${group}</div>`;keys.forEach(k=>{html+=pCard(k);});}el.innerHTML=html;goToScreen('catalog');}
+function selectIndustry(el){state.industry=el.dataset.value;document.querySelectorAll('#industryCards .card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');setTimeout(()=>{buildChallengeCards();goToScreen('challenge');},200);}
+function buildChallengeCards(){const c=document.getElementById('challengeCards');const items=CHALLENGES[state.industry]||[];c.innerHTML=items.map(i=>`<div class="card" data-value="${i.value}" onclick="selectChallenge(this)"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="${i.icon}"/></svg></div><div class="card-title">${i.title}</div><div class="card-desc">${i.desc}</div></div>`).join('');}
+function selectChallenge(el){state.challenge=el.dataset.value;document.querySelectorAll('#challengeCards .card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');
+  if(state.challenge==='datos'){
+    // Data-driven: skip video, go straight to additionals
+    state.video='none';
+    document.querySelectorAll('#additionalCards .card.selected').forEach(c=>c.classList.remove('selected'));
+    state.additionals=[];
+    setTimeout(()=>goToScreen('additionals'),200);
+  }else{
+    setTimeout(()=>goToScreen('video'),200);
+  }
+}
+function selectVideo(el){state.video=el.dataset.value;document.querySelectorAll('#videoCards .card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');
+  // Auto-preselect based on industry
+  document.querySelectorAll('#additionalCards .card.selected').forEach(c=>c.classList.remove('selected'));
+  state.additionals=[];
+  const preselect=(val)=>{const c=document.querySelector(`#additionalCards [data-value="${val}"]`);if(c){c.classList.add('selected');state.additionals.push(val);}};
+  if(state.industry==='alimentos')preselect('coldchain');
+  if(state.industry==='construccion'){preselect('asset');preselect('rugged');}
+  if(state.industry==='oilgas'){preselect('panic');preselect('rugged');}
+  if(state.industry==='leasing')preselect('keyless');
+  if(state.industry==='pasajeros')preselect('coaching');
+  if(state.industry==='ultimamilla')preselect('panic');
+  if(state.industry==='agro'){preselect('asset');preselect('rugged');}
+  setTimeout(()=>goToScreen('additionals'),200);
+}
+function toggleAdditional(el){el.classList.toggle('selected');const v=el.dataset.value;if(el.classList.contains('selected')){if(!state.additionals.includes(v))state.additionals.push(v);}else{state.additionals=state.additionals.filter(x=>x!==v);}}
+function showResult(){buildResult();document.querySelectorAll('.view-toggle button').forEach((b,i)=>{b.classList.toggle('active',i===0);});document.getElementById('partnerView').classList.add('active');document.getElementById('clientView').classList.remove('active');goToScreen('result');}
+function resetFlow(){state={screen:'welcome',clientType:null,industry:null,challenge:null,video:null,additionals:[],history:[]};document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'));renderScreen();}
+
+function getResultText(){
+  const industry=INDUSTRY_LABELS[state.industry]||'General';
+  const products=[];
+  document.querySelectorAll('#productList .product-card .p-info h3').forEach(h=>{products.push(h.textContent);});
+  const points=[];
+  document.querySelectorAll('#talkingList li').forEach(li=>{points.push(li.textContent);});
+  let text=`*Recomendaci\u00f3n Geotab para ${industry}*\n`;
+  text+=state.clientType==='existing'?'(Cliente existente - upgrade)\n\n':'(Cliente nuevo)\n\n';
+  text+=`*Productos recomendados (${products.length}):*\n`;
+  products.forEach(p=>{text+=`\u2022 ${p}\n`;});
+  text+='\n*Puntos clave:*\n';
+  points.forEach(p=>{text+=`\u2022 ${p}\n`;});
+  text+='\n_Generado con Selector de Soluciones Geotab HISPAM_';
+  return text;
+}
+function shareWhatsApp(){const text=encodeURIComponent(getResultText());window.open(`https://wa.me/?text=${text}`,'_blank');}
+function shareEmail(){const industry=INDUSTRY_LABELS[state.industry]||'General';const subject=encodeURIComponent(`Recomendaci\u00f3n Geotab - ${industry}`);const body=encodeURIComponent(getResultText().replace(/\*/g,''));window.open(`mailto:?subject=${subject}&body=${body}`);}
+function copyResult(){navigator.clipboard.writeText(getResultText().replace(/\*/g,'').replace(/_/g,'')).then(()=>{showToast('Copiado al portapapeles');});}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+function switchView(view,btn){
+  document.querySelectorAll('.view-toggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.view-content').forEach(v=>v.classList.remove('active'));
+  document.getElementById(view==='partner'?'partnerView':'clientView').classList.add('active');
+  if(view==='client')buildClientView();
+}
+
+// CLIENT-FRIENDLY PRODUCT NAMES
+const CLIENT_NAMES={
+  go:'Plataforma de gesti\u00f3n de flota con GPS en tiempo real',
+  goRugged:'Plataforma de gesti\u00f3n de flota resistente para ambientes extremos',
+  focusPlus:'Sistema de video inteligente con IA y doble c\u00e1mara',
+  coldchain:'Monitoreo de temperatura en tiempo real para cadena de fr\u00edo',
+  didcom:'Sensores inal\u00e1mbricos de temperatura expandibles',
+  goAnywhere:'Rastreo GPS de activos, remolques y equipos sin motor',
+  stealthnet:'Rastreo permanente 24/7 para trailers y activos cr\u00edticos',
+  solarnet:'Rastreo solar de larga duraci\u00f3n (sin bater\u00edas que cambiar)',
+  assettrac:'Rastreo r\u00e1pido de activos (instalaci\u00f3n sin taladro)',
+  eztrac:'Rastreo b\u00e1sico de activos (ultra-f\u00e1cil de instalar)',
+  ioxAlert:'Bot\u00f3n de emergencia para conductores con alerta instant\u00e1nea',
+  ioxNfc:'Identificaci\u00f3n de conductor por tarjeta para reportes individuales',
+  ioxGoTalk:'Retroalimentaci\u00f3n de voz en ruta para mejorar h\u00e1bitos de conducci\u00f3n',
+  ioxKeyless:'Control de acceso al veh\u00edculo sin llave f\u00edsica',
+  ioxKeybox:'Gesti\u00f3n segura de llaves de la flota',
+  ioxBattery:'Protecci\u00f3n anti-robo con rastreo continuo del veh\u00edculo',
+  ioxBT:'Rastreo de herramientas y equipos peque\u00f1os por Bluetooth',
+  ioxClamp:'Conector de expansi\u00f3n para m\u00faltiples accesorios',
+  evCenter:'Monitoreo de emisiones, consumo y gesti\u00f3n de veh\u00edculos el\u00e9ctricos'
+};
+
+const CLIENT_BENEFITS={
+  transporte:['Reducci\u00f3n de 15-25% en costos de combustible','Prevenci\u00f3n de accidentes con inteligencia artificial','Reportes autom\u00e1ticos para cumplimiento normativo','Visibilidad total de la flota las 24 horas'],
+  ultimamilla:['M\u00e1s entregas por d\u00eda con rutas optimizadas','ETAs precisos para mejorar la experiencia del cliente','Control de costos operativos en tiempo real','Protecci\u00f3n del conductor y la carga'],
+  alimentos:['Monitoreo de temperatura que protege tu carga','Cumplimiento de regulaciones sanitarias con evidencia digital','Trazabilidad completa desde origen hasta destino','Reducci\u00f3n de mermas y p\u00e9rdidas'],
+  oilgas:['Protecci\u00f3n de conductores en zonas remotas y condiciones extremas','Equipos resistentes IP68 para ambientes hostiles','Control de activos, maquinaria y equipos 24/7','Cumplimiento HSE con reportes autom\u00e1ticos'],
+  construccion:['Ubicaci\u00f3n y control de maquinaria y equipos en obra','Prevenci\u00f3n de accidentes con video inteligente','Horas reales de operaci\u00f3n para facturaci\u00f3n y mantenimiento','Rastreo de herramientas y activos peque\u00f1os'],
+  gobierno:['Transparencia y rendici\u00f3n de cuentas del uso de veh\u00edculos','Reducci\u00f3n de uso personal no autorizado','Reportes autom\u00e1ticos para auditor\u00edas','Protecci\u00f3n de operadores p\u00fablicos'],
+  leasing:['Telem\u00e1tica como diferenciador de valor en contratos','Protecci\u00f3n y control total de activos arrendados','Reportes personalizados para clientes finales','Mayor retenci\u00f3n de clientes con datos de valor'],
+  pasajeros:['Seguridad de pasajeros y conductores con video IA','Eficiencia operativa y puntualidad','Cumplimiento regulatorio de transporte p\u00fablico','Reducci\u00f3n de downtime con mantenimiento preventivo'],
+  servicios:['Verificaci\u00f3n autom\u00e1tica de visitas y tiempo en sitio','ETAs precisos para mejor satisfacci\u00f3n del cliente','Reducci\u00f3n de costos de flota y mantenimiento','Datos para optimizar la operaci\u00f3n'],
+  agro:['Control de maquinaria agr\u00edcola y horas de operaci\u00f3n','Rastreo de remolques y equipos estacionarios','Cadena de fr\u00edo para productos que lo requieren','Reducci\u00f3n de costos de combustible y mantenimiento'],
+  otra:['Visibilidad total de la flota en tiempo real','Reducci\u00f3n de costos operativos comprobada','Prevenci\u00f3n de accidentes con tecnolog\u00eda de punta','Reportes autom\u00e1ticos para toma de decisiones']
+};
+
+function buildClientView(){
+  const industry=INDUSTRY_LABELS[state.industry]||'General';
+  const products=[];
+  document.querySelectorAll('#productList .product-card .p-info h3').forEach(h=>{
+    const name=h.textContent;
+    const key=Object.keys(P).find(k=>P[k].name===name);
+    products.push(CLIENT_NAMES[key]||name);
+  });
+  const benefits=CLIENT_BENEFITS[state.industry]||CLIENT_BENEFITS.otra;
+  const partnerName=document.getElementById('partnerNameInput')?.value||'';
+
+  let html=`<h3>Soluci\u00f3n Geotab para ${industry}</h3>`;
+  html+=`<div class="cv-section"><h4><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Lo que incluye tu soluci\u00f3n</h4><ul>`;
+  products.forEach(p=>{html+=`<li>${p}</li>`;});
+  html+=`</ul></div>`;
+  html+=`<div class="cv-section"><h4><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Beneficios comprobados</h4><ul>`;
+  benefits.forEach(b=>{html+=`<li>${b}</li>`;});
+  html+=`</ul></div>`;
+  html+=`<div class="cv-section"><h4><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>Respaldado por Geotab</h4><ul>`;
+  html+=`<li>L\u00edder mundial en telem\u00e1tica con +4.5 millones de veh\u00edculos conectados</li>`;
+  html+=`<li>Plataforma abierta e integrable con +350 soluciones en Marketplace</li>`;
+  html+=`<li>Soporte t\u00e9cnico y comercial en espa\u00f1ol</li>`;
+  html+=`</ul></div>`;
+  html+=`<div class="cv-partner-input"><label>Nombre del Partner:</label><input type="text" id="partnerNameInput" placeholder="Ej: Cesetti, Giscad, Navisaf..." value="${partnerName}"></div>`;
+  document.getElementById('clientViewContent').innerHTML=html;
+}
+
+function getClientText(){
+  const industry=INDUSTRY_LABELS[state.industry]||'General';
+  const products=[];
+  document.querySelectorAll('#productList .product-card .p-info h3').forEach(h=>{
+    const name=h.textContent;
+    const key=Object.keys(P).find(k=>P[k].name===name);
+    products.push(CLIENT_NAMES[key]||name);
+  });
+  const benefits=CLIENT_BENEFITS[state.industry]||CLIENT_BENEFITS.otra;
+  const partnerName=document.getElementById('partnerNameInput')?.value||'';
+
+  let text=`*Soluci\u00f3n Geotab para ${industry}*\n\n`;
+  text+=`*Lo que incluye:*\n`;
+  products.forEach(p=>{text+=`\u2713 ${p}\n`;});
+  text+=`\n*Beneficios comprobados:*\n`;
+  benefits.forEach(b=>{text+=`\u2713 ${b}\n`;});
+  text+=`\n_L\u00edder mundial en telem\u00e1tica | +4.5M veh\u00edculos conectados_\n`;
+  if(partnerName)text+=`\n*${partnerName}* \u2014 Partner Autorizado Geotab`;
+  return text;
+}
+function shareClientWhatsApp(){const text=encodeURIComponent(getClientText());window.open(`https://wa.me/?text=${text}`,'_blank');}
+function shareClientEmail(){const industry=INDUSTRY_LABELS[state.industry]||'General';const subject=encodeURIComponent(`Soluci\u00f3n Geotab para ${industry}`);const body=encodeURIComponent(getClientText().replace(/\*/g,'').replace(/_/g,''));window.open(`mailto:?subject=${subject}&body=${body}`);}
+function copyClientResult(){navigator.clipboard.writeText(getClientText().replace(/\*/g,'').replace(/_/g,'')).then(()=>{showToast('Texto para cliente copiado');});}
+
+function buildResult(){
+  let html='';
+  const add=(group,keys)=>{html+=`<div class="group-header">${group}</div>`;keys.forEach(k=>{html+=pCard(k);});};
+
+  // BASE - skip for existing clients unless they need rugged upgrade
+  const isRugged=state.additionals.includes('rugged');
+  const isDataDriven=state.challenge==='datos';
+  if(state.clientType==='existing'){
+    if(isRugged)add('Upgrade Dispositivo',['goRugged']);
+    else if(isDataDriven)add('Plataforma de Datos',['go']);
+  }else{
+    if(isDataDriven)add('Plataforma de Datos',[isRugged?'goRugged':'go']);
+    else add('Dispositivo Telem\u00e1tico',[isRugged?'goRugged':'go']);
+  }
+
+  // CAMERAS - only GO Focus Plus in HISPAM (skip for data-driven)
+  if(state.video==='dual'&&!isDataDriven){add('Video Telem\u00e1tico',['focusPlus']);}
+
+  // COLD CHAIN
+  if(state.additionals.includes('coldchain')||(state.industry==='alimentos'&&(state.challenge==='temperatura'||state.challenge==='regulatorio'))||(state.industry==='agro'&&state.challenge==='distribucion')){
+    add('Cadena de Fr\u00edo',['coldchain','didcom']);
+  }
+
+  // ASSET TRACKERS
+  if(state.additionals.includes('asset')||(state.industry==='construccion'&&state.challenge==='rastreo')||(state.industry==='alimentos'&&state.challenge==='visibilidad')||(state.industry==='oilgas'&&state.challenge==='activos')||(state.industry==='agro'&&state.challenge==='activos')||(state.industry==='leasing'&&state.challenge==='activos')){
+    add('Rastreo de Activos',['goAnywhere','stealthnet','solarnet','assettrac','eztrac']);
+  }
+
+  // IOX ACCESSORIES
+  const ioxKeys=[];
+  if(state.additionals.includes('panic'))ioxKeys.push('ioxAlert');
+  if(state.additionals.includes('driverid'))ioxKeys.push('ioxNfc');
+  if(state.additionals.includes('coaching'))ioxKeys.push('ioxGoTalk');
+  if(state.additionals.includes('keyless'))ioxKeys.push('ioxKeyless');
+  if(state.additionals.includes('keybox'))ioxKeys.push('ioxKeybox');
+  if(state.additionals.includes('panic')||isRugged||state.industry==='leasing')ioxKeys.push('ioxBattery');
+  if(state.industry==='construccion'&&state.challenge==='rastreo')ioxKeys.push('ioxBT');
+  // Add IOX-CLAMP when 2+ IOX accessories are needed
+  const uniqueIox=[...new Set(ioxKeys)];
+  if(uniqueIox.length>=2)uniqueIox.push('ioxClamp');
+  if(uniqueIox.length)add('Accesorios IOX',uniqueIox);
+
+  // EV / ADD-INS
+  if(state.additionals.includes('ev'))add('Add-Ins MyGeotab',['evCenter']);
+
+  document.getElementById('productList').innerHTML=html;
+  const badge=INDUSTRY_LABELS[state.industry]+(state.clientType==='existing'?' (Upgrade)':'');
+  document.getElementById('resultBadge').textContent=badge;
+
+  // Count products
+  const totalProducts=(html.match(/product-card/g)||[]).length;
+  const clientLabel=state.clientType==='existing'?'upgrade':'configuraci\u00f3n';
+  document.getElementById('resultSubtitle').textContent=`${totalProducts} producto${totalProducts>1?'s':''} recomendado${totalProducts>1?'s':''} para esta ${clientLabel}`;
+
+  // Talking points
+  const points=TALKING_POINTS[state.industry]?.[state.challenge]||['Geotab ofrece la plataforma telem\u00e1tica m\u00e1s abierta y escalable del mercado','M\u00e1s de 5 millones de suscripciones activas globalmente','Integraci\u00f3n con Marketplace para expandir funcionalidades','Soporte t\u00e9cnico y comercial en espa\u00f1ol para LATAM'];
+  document.getElementById('talkingList').innerHTML=points.map(p=>`<li>${p}</li>`).join('');
+}
+updateProgress();
+</script>
+</body>
+</html>

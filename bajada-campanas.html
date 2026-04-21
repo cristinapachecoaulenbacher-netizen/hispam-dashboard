@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bajada de Campañas Globales | Geotab HISPAM</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00843D;--green-dark:#006B31;--green-light:#E8F5E9;
+  --navy:#1A1F36;--slate:#334155;--muted:#64748B;
+  --bg:#F1F5F9;--card:#FFFFFF;--border:#E2E8F0;
+  --radius:12px;--shadow:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:0 8px 24px rgba(0,0,0,0.12);
+  --accent:#7C3AED;--warm:#D97706;--red:#DC2626;--teal:#0891B2;
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--navy);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:0.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.hdr-logo{font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:2px}
+.hdr-sub{font-size:0.55rem;color:rgba(255,255,255,0.4);letter-spacing:1.5px;margin-top:1px}
+.hdr-tag{background:var(--green);color:#fff;padding:3px 12px;border-radius:20px;font-size:0.6rem;font-weight:700;letter-spacing:1px}
+
+/* LAYOUT */
+.dash{display:flex;min-height:calc(100vh - 52px)}
+.panel{width:380px;flex-shrink:0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;background:var(--card);border-right:1px solid var(--border);padding:1.25rem}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.results{flex:1;padding:1.5rem 2rem;overflow-y:auto}
+@media(max-width:900px){
+  .dash{flex-direction:column}
+  .panel{width:100%;position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+  .results{padding:1.25rem}
+}
+
+/* PANEL */
+.psec{margin-bottom:1.2rem}
+.psec-title{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);font-weight:700;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.35rem}
+.psec-title svg{width:14px;height:14px;fill:var(--green)}
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem}
+.prow.full{grid-template-columns:1fr}
+.pf{display:flex;flex-direction:column;gap:0.15rem}
+.pf label{font-size:0.65rem;font-weight:600;color:var(--slate)}
+.pf select,.pf input,.pf textarea{padding:0.4rem 0.5rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.82rem;font-weight:600;color:var(--navy);background:#fff;outline:none;width:100%;font-family:inherit}
+.pf select:focus,.pf input:focus,.pf textarea:focus{border-color:var(--green)}
+.pf textarea{resize:vertical;min-height:60px;font-size:0.78rem;font-weight:400;line-height:1.4}
+.pf .hint{font-size:0.55rem;color:var(--muted);font-style:italic}
+.psep{border:none;border-top:1px solid var(--border);margin:0.75rem 0}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.3rem}
+.chip{padding:0.3rem 0.65rem;border:1.5px solid var(--border);border-radius:20px;font-size:0.7rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--slate);background:#fff}
+.chip:hover{border-color:var(--green);color:var(--green)}
+.chip.active{background:var(--green);color:#fff;border-color:var(--green)}
+.chip-sm{padding:0.2rem 0.5rem;font-size:0.65rem}
+
+/* CAMPAIGN CARD IN PANEL */
+.camp-info{background:linear-gradient(135deg,var(--navy),#2D3555);border-radius:10px;padding:1rem;color:#fff;margin-bottom:1rem}
+.camp-info h3{font-size:0.95rem;font-weight:800;margin-bottom:0.3rem}
+.camp-info p{font-size:0.7rem;color:rgba(255,255,255,0.7);line-height:1.4}
+.camp-tag{display:inline-block;background:var(--green);color:#fff;padding:1px 8px;border-radius:12px;font-size:0.55rem;font-weight:700;letter-spacing:0.5px;margin-bottom:0.5rem}
+
+/* GLOBAL MESSAGE */
+.global-msg{background:var(--card);border:2px solid var(--green);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem;position:relative}
+.global-msg::before{content:'MENSAJE GLOBAL';position:absolute;top:-9px;left:16px;background:var(--green);color:#fff;padding:1px 10px;border-radius:10px;font-size:0.5rem;font-weight:700;letter-spacing:1px}
+.global-msg .umbrella{font-size:1.3rem;font-weight:800;color:var(--navy);margin-bottom:0.5rem;line-height:1.3}
+.global-msg .narrative{font-size:0.82rem;color:var(--slate);line-height:1.5;margin-bottom:0.5rem}
+.global-msg .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:0.75rem}
+.pillar{padding:0.5rem;border-radius:8px;text-align:center;font-size:0.65rem;font-weight:600}
+.pillar.ctx{background:#EEF2FF;color:#4338CA}
+.pillar.dat{background:#ECFDF5;color:#065F46}
+.pillar.ia{background:#FFF7ED;color:#9A3412}
+
+/* LOCALIZED OUTPUTS */
+.output-section{margin-bottom:1.5rem}
+.output-section h3{font-size:0.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem}
+.output-section h3 svg{width:16px;height:16px;fill:var(--green)}
+
+.msg-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:0.75rem;position:relative;box-shadow:var(--shadow)}
+.msg-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem}
+.msg-card-type{font-size:0.55rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;padding:2px 8px;border-radius:10px}
+.msg-card-type.email{background:#DBEAFE;color:#1D4ED8}
+.msg-card-type.linkedin{background:#E0F2FE;color:#0369A1}
+.msg-card-type.whatsapp{background:#DCFCE7;color:#166534}
+.msg-card-type.evento{background:#FEF3C7;color:#92400E}
+.msg-card-type.talking{background:#F3E8FF;color:#7C3AED}
+.msg-copy{background:none;border:1px solid var(--border);border-radius:6px;padding:0.25rem 0.5rem;font-size:0.6rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s}
+.msg-copy:hover{border-color:var(--green);color:var(--green)}
+.msg-subject{font-size:0.85rem;font-weight:700;color:var(--navy);margin-bottom:0.3rem}
+.msg-body{font-size:0.78rem;color:var(--slate);line-height:1.55;white-space:pre-wrap}
+.msg-cta{display:inline-block;background:var(--green);color:#fff;padding:0.3rem 1rem;border-radius:20px;font-size:0.7rem;font-weight:700;margin-top:0.5rem}
+.msg-tag{font-size:0.6rem;color:var(--muted);font-style:italic;margin-top:0.5rem}
+
+/* INSIGHTS */
+.insight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem}
+@media(max-width:700px){.insight-grid{grid-template-columns:1fr}}
+.insight-card{background:var(--card);border-left:4px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;padding:1rem;box-shadow:var(--shadow)}
+.insight-card.warn{border-left-color:var(--warm)}
+.insight-card.danger{border-left-color:var(--red)}
+.insight-card.info{border-left-color:var(--teal)}
+.insight-card h4{font-size:0.75rem;font-weight:700;color:var(--navy);margin-bottom:0.3rem}
+.insight-card p{font-size:0.72rem;color:var(--slate);line-height:1.45}
+
+/* ACTIONS */
+.acts{display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}
+.btn{padding:0.5rem 1rem;border:none;border-radius:20px;font-size:0.72rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.35rem;color:#fff}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn-wa{background:#25D366}
+.btn-em{background:#4285F4}
+.btn-cp{background:var(--slate)}
+.btn-pr{background:var(--navy)}
+.btn svg{width:14px;height:14px;fill:#fff}
+
+/* GOOGLE ADS CARD */
+.msg-card-type.googleads{background:#4285F4;color:#fff}
+.msg-card-type.banner{background:#E91E63;color:#fff}
+.msg-card-type.totem{background:#FF6F00;color:#fff}
+.ad-preview{background:#f8f9fa;border:1px solid #dadce0;border-radius:8px;padding:1rem;margin-top:0.5rem;font-family:Arial,sans-serif}
+.ad-preview .ad-url{color:#202124;font-size:0.75rem}
+.ad-preview .ad-headline{color:#1a0dab;font-size:1.1rem;font-weight:400;margin:2px 0}
+.ad-preview .ad-desc{color:#4d5156;font-size:0.85rem}
+.ad-preview .ad-badge{display:inline-block;background:#fff;border:1px solid #dadce0;color:#202124;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:3px;margin-right:4px}
+.banner-preview{background:var(--navy);color:#fff;border-radius:8px;padding:1.2rem;margin-top:0.5rem;text-align:center;position:relative;overflow:hidden}
+.banner-preview::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:var(--green);border-radius:50%;opacity:0.15}
+.banner-preview .bn-headline{font-size:1.3rem;font-weight:800;margin-bottom:0.3rem}
+.banner-preview .bn-sub{font-size:0.85rem;opacity:0.85;margin-bottom:0.6rem}
+.banner-preview .bn-cta{display:inline-block;background:var(--green);color:#fff;padding:6px 18px;border-radius:20px;font-size:0.8rem;font-weight:700}
+.banner-preview .bn-size{position:absolute;bottom:4px;right:8px;font-size:0.55rem;opacity:0.4}
+.totem-preview{background:linear-gradient(135deg,var(--navy) 0%,#2d3250 100%);color:#fff;border-radius:12px;padding:1.5rem 1rem;margin-top:0.5rem;text-align:center;min-height:200px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative}
+.totem-preview .tm-logo{font-size:0.9rem;font-weight:800;letter-spacing:3px;color:var(--green);margin-bottom:0.8rem}
+.totem-preview .tm-headline{font-size:1.4rem;font-weight:800;margin-bottom:0.4rem;line-height:1.2}
+.totem-preview .tm-sub{font-size:0.85rem;opacity:0.8;margin-bottom:0.8rem}
+.totem-preview .tm-qr{width:70px;height:70px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0.5rem auto;font-size:0.6rem;color:var(--navy);font-weight:700}
+.totem-preview .tm-cta{font-size:0.75rem;color:var(--green);font-weight:700;margin-top:0.5rem}
+.partner-badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-light);color:var(--green-dark);padding:2px 10px;border-radius:12px;font-size:0.7rem;font-weight:600;margin-left:6px}
+.partner-info{background:var(--green-light);border-left:3px solid var(--green);padding:0.6rem 0.8rem;border-radius:0 6px 6px 0;margin-top:0.5rem;font-size:0.8rem}
+.partner-info strong{color:var(--green-dark)}
+
+/* CUSTOM CAMPAIGN */
+.custom-fields{display:none;margin-top:0.75rem}
+.custom-fields.show{display:block}
+.custom-fields .pf{margin-bottom:0.5rem}
+.custom-fields textarea{min-height:50px}
+.custom-fields input,.custom-fields textarea{font-size:0.78rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#fff;padding:0.75rem 1.5rem;border-radius:50px;font-size:0.85rem;font-weight:600;transition:transform 0.3s;z-index:999}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:4rem 2rem}
+.empty svg{width:64px;height:64px;fill:var(--border);margin-bottom:1rem}
+.empty h3{font-size:1.1rem;font-weight:700;color:var(--muted);margin-bottom:0.5rem}
+.empty p{font-size:0.85rem;color:var(--muted);max-width:400px;margin:0 auto;line-height:1.5}
+
+/* PRINT */
+@media print{
+  .hdr,.acts,.msg-copy,.panel{display:none}
+  body{background:#fff}
+  .results{padding:1rem}
+  .msg-card,.global-msg,.insight-card{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div><div class="hdr-logo">GEOTAB</div><div class="hdr-sub">BAJADA DE CAMPA&Ntilde;AS GLOBALES &mdash; HISPAM</div></div>
+  <div class="hdr-tag">CHANNEL MARKETING</div>
+</div>
+
+<div class="dash">
+  <aside class="panel">
+    <!-- CAMPAIGN SELECT -->
+    <div class="psec">
+      <div class="psec-title"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>Campa&ntilde;a Global</div>
+      <div class="prow full">
+        <div class="pf"><label>Selecciona la campa&ntilde;a</label>
+          <select id="campaign" onchange="generate()">
+            <option value="">-- Elige una campa&ntilde;a --</option>
+            <option value="allinone">All-in-One Flexible Platform (Always-On)</option>
+            <option value="gofocus">GO FOCUS Plus &mdash; Video Telem&aacute;tica</option>
+            <option value="coldchain">Cold Chain &mdash; Cadena de Fr&iacute;o</option>
+            <option value="safety">Safety &mdash; Seguridad Vial</option>
+            <option value="vitality">Vitality &mdash; Ciencia del Comportamiento</option>
+            <option value="fillfleet">Fill the Fleet &mdash; Crecimiento</option>
+            <option value="displacement">Displacement &mdash; Desplazamiento Competitivo</option>
+            <option value="goaway">GO Anywhere &mdash; Rastreo de Activos</option>
+            <option value="marketplace">Marketplace &mdash; Ecosistema</option>
+            <option value="powerplay">Power Play &mdash; Incentivos Partners</option>
+            <option value="custom">&#10010; Nueva Campa&ntilde;a (personalizada)</option>
+          </select>
+        </div>
+      </div>
+      <div class="custom-fields" id="customFields">
+        <div class="pf"><label>Nombre de la campa&ntilde;a *</label><input type="text" id="customName" placeholder="Ej: Geotab Pulse, Winter Fleet Check..." oninput="debounceGen()"></div>
+        <div class="pf"><label>Mensaje principal / Umbrella *</label><textarea id="customUmbrella" placeholder="El mensaje clave de la campa&ntilde;a global. Ej: 'Datos confiables. Una sola plataforma flexible.'" oninput="debounceGen()"></textarea></div>
+        <div class="pf"><label>Narrativa / Descripci&oacute;n</label><textarea id="customNarrative" placeholder="Descripci&oacute;n m&aacute;s amplia del mensaje. &#191;Qu&eacute; problema resuelve? &#191;C&oacute;mo lo resuelve?" oninput="debounceGen()"></textarea></div>
+        <div class="pf"><label>Productos involucrados</label><input type="text" id="customProducts" placeholder="Ej: GO Device, MyGeotab, GO FOCUS Plus" oninput="debounceGen()"></div>
+        <div class="pf"><label>CTA (llamada a la acci&oacute;n)</label><input type="text" id="customCta" placeholder="Ej: Solicita una demo, Conoce m&aacute;s, Reg&iacute;strate" oninput="debounceGen()"></div>
+        <div class="pf"><label>KPI / Resultados esperados</label><input type="text" id="customKpi" placeholder="Ej: Reducci&oacute;n de costos 15%, menos accidentes" oninput="debounceGen()"></div>
+      </div>
+      <div id="campInfo"></div>
+    </div>
+
+    <hr class="psep">
+
+    <!-- PARTNER CONTEXT -->
+    <div class="psec">
+      <div class="psec-title"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>Contexto del Partner</div>
+      <div class="prow">
+        <div class="pf"><label>Pa&iacute;s</label>
+          <select id="country" onchange="generate()">
+            <option value="mx">M&eacute;xico</option>
+            <option value="co">Colombia</option>
+            <option value="cl">Chile</option>
+            <option value="ar">Argentina</option>
+            <option value="pe">Per&uacute;</option>
+            <option value="ec">Ecuador</option>
+            <option value="caribe">Caribe</option>
+            <option value="ca">Centroam&eacute;rica</option>
+            <option value="uy">Uruguay</option>
+            <option value="py">Paraguay</option>
+            <option value="bo">Bolivia</option>
+            <option value="pr">Puerto Rico</option>
+          </select>
+        </div>
+        <div class="pf"><label>Tama&ntilde;o de cliente</label>
+          <select id="clientSize" onchange="generate()">
+            <option value="smb">PyME (1-50 veh.)</option>
+            <option value="mid" selected>Mid-Market (50-500)</option>
+            <option value="enterprise">Enterprise (500+)</option>
+          </select>
+        </div>
+      </div>
+      <div class="prow full">
+        <div class="pf"><label>Vertical / Segmento</label>
+          <select id="vertical" onchange="generate()">
+            <option value="transporte">Transporte y Log&iacute;stica</option>
+            <option value="ultimamilla">Mensajer&iacute;a y &Uacute;ltima Milla</option>
+            <option value="alimentos">Alimentos, Bebidas y Farma</option>
+            <option value="oilgas">Oil, Gas y Miner&iacute;a</option>
+            <option value="construccion">Construcci&oacute;n</option>
+            <option value="gobierno">Gobierno</option>
+            <option value="leasing">Leasing / FMC</option>
+            <option value="pasajeros">Transporte de Pasajeros</option>
+            <option value="servicios">Servicios de Campo</option>
+            <option value="agro">Agricultura</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <hr class="psep">
+
+    <!-- PAIN POINTS -->
+    <div class="psec">
+      <div class="psec-title"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>Dolencias del Cliente</div>
+      <div class="pf"><label>Selecciona las principales (click m&uacute;ltiple)</label></div>
+      <div class="chips" id="painChips"></div>
+    </div>
+
+    <hr class="psep">
+
+    <!-- CUSTOM CONTEXT -->
+    <div class="psec">
+      <div class="psec-title"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>Contexto Adicional</div>
+      <div class="prow full">
+        <div class="pf"><label>Partner HISPAM</label>
+          <select id="partner" onchange="onPartnerChange()">
+            <option value="">-- Selecciona partner --</option>
+            <optgroup label="PAM: Jose Valdes">
+              <option value="didcom" data-pam="Jose Valdes" data-budget="17243" data-type="reseller" data-country="mx">Grupo Tecnol&oacute;gico Didcom (MX) — $17.2K</option>
+              <option value="admflotas" data-pam="Jose Valdes" data-budget="2383" data-type="reseller" data-country="mx">Administraci&oacute;n de Flotas (MX) — $2.4K</option>
+              <option value="envuemex" data-pam="Jose Valdes" data-budget="80" data-type="reseller" data-country="mx">ENVUEMEX Solutions (MX) — $81</option>
+            </optgroup>
+            <optgroup label="PAM: Clara Hernandez">
+              <option value="rdacol" data-pam="Clara Hernandez" data-budget="3954" data-type="reseller" data-country="co">RDA Colombia (CO) — $4K</option>
+              <option value="rodar" data-pam="Clara Hernandez" data-budget="199" data-type="reseller" data-country="co">Rodar y Rodar (CO) — $199</option>
+            </optgroup>
+            <optgroup label="PAM: Gabriela Tremeschin">
+              <option value="autorentas" data-pam="Gabriela Tremeschin" data-budget="14391" data-type="leasing" data-country="cl">Autorentas del Pac&iacute;fico (CL) — $14.4K</option>
+              <option value="triplezeta" data-pam="Gabriela Tremeschin" data-budget="6317" data-type="reseller" data-country="cl">Triple Zeta (CL) — $6.3K</option>
+              <option value="rdacl" data-pam="Gabriela Tremeschin" data-budget="106" data-type="reseller" data-country="cl">RDA Chile (CL) — $106</option>
+            </optgroup>
+            <optgroup label="PAM: Ruben Kreischer">
+              <option value="cesetti" data-pam="Ruben Kreischer" data-budget="5981" data-type="reseller" data-country="ar">Ing. Jorge Cesetti (AR) — $6K</option>
+              <option value="rdarent" data-pam="Ruben Kreischer" data-budget="3111" data-type="leasing" data-country="ar">RDA Renting (AR) — $3.1K</option>
+              <option value="toyota" data-pam="Ruben Kreischer" data-budget="1640" data-type="oem" data-country="ar">Toyota Argentina (AR) — $1.6K</option>
+              <option value="kpn" data-pam="Ruben Kreischer" data-budget="269" data-type="reseller" data-country="ar">KPN Energy Solutions (AR) — $269</option>
+              <option value="geomax" data-pam="Ruben Kreischer" data-budget="139" data-type="reseller" data-country="ar">Geomax (AR) — $140</option>
+            </optgroup>
+            <optgroup label="PAM: Krystel Villalvazo">
+              <option value="giscad" data-pam="Krystel Villalvazo" data-budget="9801" data-type="reseller" data-country="mx">Giscad (MX) — $9.8K</option>
+              <option value="techweb" data-pam="Krystel Villalvazo" data-budget="4208" data-type="reseller" data-country="pr">Tech Web of PR (PR) — $4.2K</option>
+              <option value="liberty" data-pam="Krystel Villalvazo" data-budget="1068" data-type="telco" data-country="pr">Liberty Mobile PR (PR) — $1.1K</option>
+              <option value="sonnell" data-pam="Krystel Villalvazo" data-budget="740" data-type="reseller" data-country="ca">Grupo Sonnell (CA) — $740</option>
+            </optgroup>
+            <optgroup label="PAM: Veronica Leon">
+              <option value="cgb" data-pam="Veronica Leon" data-budget="3543" data-type="reseller" data-country="co">CGB (CO) — $3.5K</option>
+              <option value="rentingsac" data-pam="Veronica Leon" data-budget="2301" data-type="leasing" data-country="pe">Renting S.A.C. (PE) — $2.3K</option>
+              <option value="intelligis" data-pam="Veronica Leon" data-budget="1820" data-type="reseller" data-country="co">Intelligis (CO) — $1.8K</option>
+              <option value="mbrenting" data-pam="Veronica Leon" data-budget="1460" data-type="leasing" data-country="co">MB Renting (CO) — $1.5K</option>
+              <option value="grupo3s" data-pam="Veronica Leon" data-budget="25" data-type="reseller" data-country="ec">Grupo3S Ecuador (EC) — $25</option>
+            </optgroup>
+            <optgroup label="Cuentas Estrat&eacute;gicas">
+              <option value="amher" data-pam="Ralf Schmidt" data-budget="85451" data-type="strategic" data-country="mx">Grupo AMHER (MX) — $85.5K</option>
+              <option value="navisafco" data-pam="N/A" data-budget="24587" data-type="reseller" data-country="co">Navisaf Colombia (CO) — $24.6K</option>
+              <option value="att" data-pam="Edgar Hernandez" data-budget="17239" data-type="telco" data-country="mx">AT&amp;T LATAM (MX) — $17.2K</option>
+              <option value="element" data-pam="Adrian Grande" data-budget="16744" data-type="leasing" data-country="mx">Element LATAM (MX) — $16.7K</option>
+              <option value="navisafpe" data-pam="N/A" data-budget="11168" data-type="reseller" data-country="pe">Navisaf Per&uacute; (PE) — $11.2K</option>
+              <option value="telefcl" data-pam="N/A" data-budget="8371" data-type="telco" data-country="cl">Telef&oacute;nica Chile (CL) — $8.4K</option>
+              <option value="smartmob" data-pam="N/A" data-budget="6154" data-type="reseller" data-country="mx">Smart Mobility LATAM (MX) — $6.2K</option>
+              <option value="telefar" data-pam="N/A" data-budget="1768" data-type="telco" data-country="ar">Telef&oacute;nica Argentina (AR) — $1.8K</option>
+              <option value="navisafgt" data-pam="N/A" data-budget="1400" data-type="reseller" data-country="ca">Navisaf Guatemala (GT) — $1.4K</option>
+              <option value="telefmx" data-pam="N/A" data-budget="627" data-type="telco" data-country="mx">Telef&oacute;nica M&eacute;xico (MX) — $627</option>
+            </optgroup>
+            <option value="_custom">&#9998; Escribir nombre manualmente</option>
+          </select>
+        </div>
+      </div>
+      <div class="prow full" id="customPartnerRow" style="display:none">
+        <div class="pf"><label>Nombre del partner</label><input type="text" id="partnerCustom" placeholder="Escribe el nombre del partner" oninput="generate()"></div>
+      </div>
+      <div id="partnerInfo"></div>
+      <div class="prow full">
+        <div class="pf"><label>Contexto local del mercado (opcional)</label>
+          <textarea id="localContext" placeholder="Ej: Regulaci&oacute;n nueva de transporte, temporada alta, competidor fuerte en la zona..." oninput="debounceGen()"></textarea>
+          <span class="hint">A&ntilde;ade detalles del mercado local para mensajes m&aacute;s relevantes</span>
+        </div>
+      </div>
+      <div class="prow full" style="margin-top:0.5rem">
+        <button class="btn btn-gen" style="background:var(--green);width:100%;justify-content:center;padding:0.65rem" onclick="generate()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
+          Generar Bajada Local
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="results" id="results">
+    <div class="empty" id="emptyState">
+      <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4V8h16v11z"/></svg>
+      <h3>Selecciona una campa&ntilde;a global</h3>
+      <p>Elige la campa&ntilde;a, tu pa&iacute;s, vertical y dolencias del cliente para generar mensajes localizados listos para usar.</p>
+    </div>
+    <div id="outputArea" style="display:none"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+// DATA: CAMPAIGNS
+// ════════════════════════════════════════════
+const CAMPAIGNS={
+allinone:{
+  name:'All-in-One Flexible Platform',
+  tag:'ALWAYS-ON 2026',
+  desc:'5 millones de vehículos. 100 mil millones de datos al día. La plataforma que ya conecta más flotas que cualquier otra en el mundo.',
+  umbrella:'5 millones de vehículos ya lo saben. ¿Tu flota todavía adivina?',
+  narrative:'Mientras otros vendors te venden promesas, Geotab procesa 100 mil millones de datos al día de flotas reales. Video con IA que entiende. Telemetría que no se puede manipular. Y una plataforma abierta con +430 integraciones donde TÚ decides cómo operar.',
+  pillars:['Video IA que entiende','Datos que no mienten','Plataforma que TÚ controlas'],
+  cta:'Ve lo que tu flota no te está diciendo',
+  products:['GO Device','MyGeotab','GO FOCUS Plus','Marketplace'],
+  kpi:'5M vehículos conectados, 100B datos/día, +430 integraciones, #1 ABI Research 4 años consecutivos'
+},
+gofocus:{
+  name:'GO FOCUS Plus — Video Telemática',
+  tag:'LANZAMIENTO',
+  desc:'La cámara que redujo tailgating 90% y uso de celular 95% en pilotos reales. No graba por grabar — entiende, alerta y corrige en tiempo real.',
+  umbrella:'Tu cámara actual graba accidentes. La nuestra los previene.',
+  narrative:'99% de los conductores comerciales reconocen el valor de las dashcams (estudio Geotab, dic 2025). Pero una cámara que solo graba es un testigo pasivo. GO FOCUS Plus procesa con IA en el borde — detecta fatiga, distracción, tailgating — y corrige al conductor con voz antes de que pase algo. El video se sincroniza con datos del motor en una línea de tiempo. No es vigilancia, es prevención activa.',
+  pillars:['IA en el borde (no en la nube)','Coaching de voz en tiempo real','Privacidad por diseño'],
+  cta:'Deja de grabar accidentes. Empieza a prevenirlos.',
+  products:['GO FOCUS Plus','GO FOCUS Pro','MyGeotab','GO Device'],
+  kpi:'-90% tailgating, -95% celular al volante, 99% de conductores apoyan dashcams, procesamiento en borde = privacidad'
+},
+coldchain:{
+  name:'Cold Chain — Cadena de Frío',
+  tag:'VERTICAL',
+  desc:'30% de perecederos se pierden por fallas en cadena de frío. IOX-COLD detecta la desviación ANTES de que pierdas el lote.',
+  umbrella:'Un grado de diferencia: entre un lote entregado y uno en la basura.',
+  narrative:'Mientras tu competencia revisa termómetros al llegar, tú ya recibiste la alerta 30 minutos antes de la desviación. IOX-COLD monitorea multi-zona en tiempo real, ajusta setpoints remotamente, y genera la evidencia digital que el auditor necesita. HACCP, FSMA, GDP — todo automático, todo trazable, todo admisible.',
+  pillars:['Alertas ANTES de la pérdida','Control remoto de temperatura','Evidencia que el auditor acepta'],
+  cta:'Tu próxima auditoría va a ser diferente',
+  products:['IOX-COLD','Cold Chain Management','MyGeotab','GO Device'],
+  kpi:'Alertas anticipadas, cero pérdidas evitables, cumplimiento automático HACCP/FSMA/GDP'
+},
+safety:{
+  name:'Safety — Seguridad Vial',
+  tag:'PILAR',
+  desc:'Los accidentes fatales con camiones pesados aumentaron 43% en una década. 95% de conductores creen que el riesgo vial ha aumentado. No es momento de reaccionar.',
+  umbrella:'El accidente más barato es el que nunca ocurrió.',
+  narrative:'5,300 accidentes fatales con camiones pesados solo en 2023. +43% en una década. El 95% de los conductores sabe que el riesgo va en aumento. Y aun así, la mayoría de las flotas sigue reaccionando después del hecho. Geotab convierte datos en prevención: video IA que detecta fatiga 30 segundos antes del incidente, scoring basado en datos reales — no en percepciones — y coaching de voz que corrige en el momento exacto. No es vigilancia. Es la diferencia entre un conductor que llega a casa y uno que no.',
+  pillars:['Detecta 30s antes del incidente','Scoring con datos reales, no opiniones','Coaching que salva vidas'],
+  cta:'¿Cuánto le cuestan los accidentes a tu operación?',
+  products:['GO FOCUS Plus','GO FOCUS Pro','MyGeotab','IOX-ALERT'],
+  kpi:'+43% accidentes fatales en 10 años, -90% tailgating con Geotab, -95% celular al volante, protección legal integrada'
+},
+vitality:{
+  name:'Vitality — Ciencia del Comportamiento',
+  tag:'ALIANZA',
+  desc:'Joint venture Geotab + Vitality. Ciencia del comportamiento aplicada a conductores. Incentivos basados en datos para mejorar hábitos de manejo.',
+  umbrella:'Conductores más seguros. Flotas más inteligentes.',
+  narrative:'Vitality aplica ciencia del comportamiento probada: los conductores reciben incentivos personalizados basados en su desempeño real. No es vigilancia, es motivación basada en datos.',
+  pillars:['Ciencia del comportamiento','Incentivos por datos','Cultura de seguridad'],
+  cta:'Transforma el comportamiento de tu flota',
+  products:['Geotab Vitality','MyGeotab','GO Device'],
+  kpi:'Mejora sostenida de hábitos, reducción de siniestralidad, retención de conductores'
+},
+fillfleet:{
+  name:'Fill the Fleet — Crecimiento',
+  tag:'UPSELL',
+  desc:'Campaña para clientes existentes. Expande Geotab a más vehículos de tu flota. Cada vehículo sin telemática es un punto ciego.',
+  umbrella:'Cada vehículo sin conectar es un punto ciego en tu operación.',
+  narrative:'Ya conoces el valor de Geotab. Ahora imagina tener visibilidad total. Cada vehículo sin telemática te cuesta dinero en combustible desperdiciado, mantenimiento reactivo y riesgos sin detectar.',
+  pillars:['Visibilidad completa','ROI incremental','Sin puntos ciegos'],
+  cta:'Conecta toda tu flota',
+  products:['GO Device','MyGeotab'],
+  kpi:'Aumento de suscripciones, cobertura total de flota, mayor ROI'
+},
+displacement:{
+  name:'Displacement — Desplazamiento Competitivo',
+  tag:'COMPETITIVO',
+  desc:'Tu proveedor vende directo y compite con sus propios partners. Geotab #1 mundial (ABI Research, 4 años seguidos) vs. ecosistemas cerrados que retienen tus datos.',
+  umbrella:'¿Tu proveedor de telemática trabaja para ti... o compites con él?',
+  narrative:'Pregunta incómoda: ¿tu proveedor actual vende directo a tus mismos clientes? Geotab no. Somos channel-first — tu negocio es tu negocio. Mientras otros te encierran en ecosistemas propietarios, Geotab te da +430 integraciones, API abierta, SDK, y tus datos son TUYOS. Exporta cuando quieras. Integra lo que necesites. Sin contratos trampa. Geotab es #1 mundial en telemática comercial por cuarto año consecutivo (ABI Research). No lo decimos nosotros — lo dice el análisis independiente.',
+  pillars:['Channel-first: no competimos contigo','+430 integraciones vs ecosistema cerrado','#1 ABI Research 4 años consecutivos'],
+  cta:'Compara y decide con datos, no con promesas',
+  products:['GO Device','MyGeotab','Marketplace','API/SDK abierto'],
+  kpi:'#1 ABI Research 4 años, +430 integraciones, 5M vehículos, channel-first = tu negocio protegido'
+},
+goaway:{
+  name:'GO Anywhere — Rastreo de Activos',
+  tag:'LANZAMIENTO',
+  desc:'Ese tráiler que no sabes dónde está ahora mismo vale más que varios vehículos de tu flota. GO Anywhere lo hace visible 24/7.',
+  umbrella:'Tu activo más caro es el que no puedes ver.',
+  narrative:'Un tráiler robado en LATAM cuesta entre $15,000 y $50,000 USD. Un contenedor refrigerado, más. Un generador en obra remota, irremplazable en semanas. GO Anywhere es compacto, IP67, batería de larga duración, y vive dentro de MyGeotab — la misma plataforma donde ves tus vehículos. Sin apps separadas, sin plataformas paralelas, sin excusas.',
+  pillars:['Mismo MyGeotab — sin apps extras','IP67: polvo, agua, golpes','Batería que dura, no que promete'],
+  cta:'¿Dónde está tu tráiler ahora mismo?',
+  products:['GO Anywhere','MyGeotab'],
+  kpi:'Protección de activos de alto valor, visibilidad 24/7, cero plataformas paralelas'
+},
+marketplace:{
+  name:'Marketplace — Ecosistema de Integraciones',
+  tag:'ECOSISTEMA',
+  desc:'+430 soluciones de +350 partners. La diferencia entre una plataforma y un callejón sin salida es cuántas puertas abre.',
+  umbrella:'¿Tu plataforma de telemática se integra con todo... o solo consigo misma?',
+  narrative:'Mientras otros proveedores te venden un ecosistema cerrado donde solo puedes usar SUS productos, Geotab Marketplace tiene +430 soluciones de +350 partners independientes. Mantenimiento, routing, ELD, cámaras, sensores, ERP, despacho — lo que necesites, cuando lo necesites. Order Now: un click y listo. Sin implementaciones de meses. Sin consultores. Sin depender de un solo vendor para todo.',
+  pillars:['430+ soluciones — no 30, no 50','Order Now: activa en un click','Tu stack, tus reglas'],
+  cta:'Pregúntale a tu proveedor actual cuántas integraciones tiene',
+  products:['MyGeotab Marketplace','Order Now'],
+  kpi:'+430 soluciones, +350 partners, activación en 1 click, cero vendor lock-in'
+},
+powerplay:{
+  name:'Power Play — Incentivos para Partners',
+  tag:'CANAL',
+  desc:'Programa de incentivos para partners. Premia el crecimiento y la activación de suscripciones.',
+  umbrella:'Tu crecimiento tiene recompensa.',
+  narrative:'Power Play premia tu esfuerzo: por cada suscripción activada, acumulas puntos y desbloqueas beneficios exclusivos. Más vendes, más ganas. Simple.',
+  pillars:['Incentivos claros','Beneficios escalonados','Premiación trimestral'],
+  cta:'Activa tu Power Play',
+  products:['Programa Power Play'],
+  kpi:'Activaciones de suscripciones, crecimiento de base, retención'
+}
+};
+
+// ════════════════════════════════════════════
+// DATA: COUNTRIES
+// ════════════════════════════════════════════
+const COUNTRIES={
+  mx:{name:'México',context:'Autotransporte = 75% carga terrestre, ~4% PIB. Edad promedio de flota 19.8 años. 80% permisionarios son micro-empresas (1-5 unidades). Regulación SCT. Inseguridad en carreteras.',competitors:'Samsara, Motive, Ublox, LoJack'},
+  co:{name:'Colombia',context:'Segunda economía andina. Fuerte crecimiento en última milla. Regulación RUNT. Zonas de difícil acceso. Costos de combustible en alza. Elecciones 2026.',competitors:'Wialon, Satrack, Ubiqo'},
+  cl:{name:'Chile',context:'Mercado maduro en logística. Minería como motor económico. Regulación estricta de transporte. Distancias largas norte-sur.',competitors:'Fleet Complete, Wialon'},
+  ar:{name:'Argentina',context:'Inflación alta, tipo de cambio variable. Fuerte sector agro y transporte. Expansión a Paraguay y Bolivia desde Argentina.',competitors:'Ituran, Mix Telematics'},
+  pe:{name:'Perú',context:'Minería principal sector económico. Transporte interprovincial regulado. Lima concentra 30% de flota nacional.',competitors:'Wialon, trackIT'},
+  ec:{name:'Ecuador',context:'Economía dolarizada. Sector petrolero importante. Flotas medianas predominan.',competitors:'Proveedores locales'},
+  caribe:{name:'Caribe',context:'Multi-país: Trinidad, Jamaica, Guyana, Barbados, Surinam, Santa Lucía. Mercados pequeños pero con alto potencial. Idioma inglés predominante.',competitors:'Mix Telematics, proveedores locales'},
+  ca:{name:'Centroamérica',context:'Guatemala, Costa Rica, Panamá como mercados principales. Transporte de carga transfronterizo. Zonas francas.',competitors:'Proveedores locales'},
+  uy:{name:'Uruguay',context:'Mercado pequeño pero sofisticado. Fuerte sector agropecuario y logístico.',competitors:'Tracking local'},
+  py:{name:'Paraguay',context:'Sector agro dominante (soja, ganadería). Transporte fronterizo con Brasil y Argentina.',competitors:'Proveedores locales'},
+  bo:{name:'Bolivia',context:'Minería y agricultura. Infraestructura vial limitada. Flotas con alta edad promedio.',competitors:'Proveedores locales'},
+  pr:{name:'Puerto Rico',context:'Regulación estadounidense (FMCSA/ELD). Mercado bilingüe. Fuerte sector de distribución.',competitors:'Samsara, Verizon Connect'}
+};
+
+// ════════════════════════════════════════════
+// DATA: PARTNER TYPES (for message personalization)
+// ════════════════════════════════════════════
+const PARTNER_TYPES={
+  reseller:{name:'Reseller',tone:'directo',focus:'generación de demanda y cierre',hook:'Tus clientes buscan resultados. Dales la herramienta que los entrega.',style:'agresivo-comercial'},
+  leasing:{name:'Leasing / Renting',tone:'consultivo',focus:'valor agregado al arrendamiento',hook:'Diferencia tu oferta de renting con telemática integrada.',style:'sofisticado-financiero'},
+  telco:{name:'Telco / Carrier',tone:'tecnológico',focus:'IoT y conectividad como servicio',hook:'Agrega telemática a tu portafolio de conectividad.',style:'enterprise-tech'},
+  oem:{name:'OEM / Fabricante',tone:'técnico-premium',focus:'integración nativa en vehículo',hook:'Geotab integrado de fábrica: valor desde el día uno.',style:'premium-técnico'},
+  strategic:{name:'Cuenta Estratégica',tone:'ejecutivo',focus:'transformación digital de flotas',hook:'Una alianza que transforma la industria.',style:'C-level-impacto'}
+};
+
+// ════════════════════════════════════════════
+// DATA: VERTICALS
+// ════════════════════════════════════════════
+const VERTICALS={
+  transporte:{name:'Transporte y Logística',pains:['Costos de combustible fuera de control','Accidentes y siniestralidad alta','Cumplimiento normativo (SCT/RUNT/FMCSA)','Falta de visibilidad de la operación','Mantenimiento reactivo costoso','Rotación de conductores','Robo de carga en ruta','Ralentí excesivo'],value:'Reducción de costos operativos 15-25%, prevención de accidentes, cumplimiento regulatorio automático'},
+  ultimamilla:{name:'Última Milla',pains:['Pocas entregas por día','Sin ETAs para clientes','Robo de paquetes','Uso personal de vehículos','Costos de combustible en ciudad','Conductores sin capacitación','Quejas de clientes por demora','Falta de prueba de entrega'],value:'Más entregas/día, ETAs precisos, prueba de entrega, protección del repartidor'},
+  alimentos:{name:'Alimentos y Bebidas',pains:['Pérdida de carga por temperatura','Incumplimiento regulatorio (HACCP/FSMA)','Sin trazabilidad de cadena de frío','Auditorías con registros manuales','Mermas por desviación de temperatura','Múltiples sistemas sin integrar','Costos de seguro elevados','Reclamos de clientes por calidad'],value:'Protección de carga, cumplimiento regulatorio, trazabilidad, reducción de mermas'},
+  oilgas:{name:'Oil, Gas y Minería',pains:['Seguridad en zonas remotas','Cumplimiento HSE','Equipos en ambientes extremos','Fatiga de conductores en distancias largas','Control de maquinaria pesada','Costos de operación elevados','Reportes de emisiones','Accidentes en carreteras peligrosas'],value:'Protección en zonas remotas, cumplimiento HSE, control de activos, equipos IP68'},
+  construccion:{name:'Construcción',pains:['Maquinaria sin rastrear','Robo de equipo en obra','Horas de operación no verificables','Mantenimiento de equipos pesados','Conductores sin supervisión','Costos de combustible no controlados','Facturación imprecisa por uso','Equipos en múltiples sitios'],value:'Control de maquinaria, horas reales, rastreo de activos, facturación precisa'},
+  gobierno:{name:'Gobierno',pains:['Uso personal de vehículos oficiales','Falta de rendición de cuentas','Sin reportes de uso','Costos excesivos de flota','Accidentes de vehículos públicos','Ciudadanos exigiendo transparencia','Presupuesto limitado','Auditorías frecuentes'],value:'Transparencia, rendición de cuentas, ahorro de presupuesto público'},
+  leasing:{name:'Leasing / FMC',pains:['Sin visibilidad de activos arrendados','Clientes finales sin valor agregado','Km y uso no verificables','Alta rotación de vendedores','Diferenciación vs competencia','Procesos legales tardados','Churn de clientes','Sin datos para contratos'],value:'Telemática como diferenciador, protección de activos, datos para contratos'},
+  pasajeros:{name:'Transporte de Pasajeros',pains:['Seguridad de pasajeros','Accidentes con responsabilidad civil','Cumplimiento de rutas y horarios','Fatiga de conductores','Mantenimiento de unidades','Costos de combustible','Regulación de transporte público','Downtime de unidades'],value:'Seguridad de pasajeros, cumplimiento regulatorio, disponibilidad de flota'},
+  servicios:{name:'Servicios de Campo',pains:['Técnicos sin supervisión','ETAs imprecisos para clientes','Tiempo en sitio no verificable','Costos de flota elevados','Mantenimiento reactivo','Vehículos con uso personal','Difícil asignar técnico más cercano','Sin datos de productividad'],value:'Verificación de visitas, ETAs precisos, productividad medible'},
+  agro:{name:'Agricultura',pains:['Maquinaria sin monitoreo','Costos de combustible en campo','Mantenimiento de tractores','Distribución de producto sin trazabilidad','Cadena de frío para perecederos','Horas de operación no registradas','Cobertura de parcela sin medir','Robo de insumos'],value:'Control de maquinaria, horas de operación, cadena de frío, trazabilidad'}
+};
+
+// ════════════════════════════════════════════
+// DATA: LOCALIZED MESSAGES PER CAMPAIGN × VERTICAL
+// ════════════════════════════════════════════
+const MESSAGES={
+allinone:{
+  _default:{
+    email:{subj:'Tu flota genera datos. ¿Los estás usando o los estás perdiendo?',body:'Te voy a dar un número: 100 mil millones.\n\nEsos son los datos que Geotab procesa cada día de 5 millones de vehículos conectados. No es teoría. Es la plataforma de telemática más grande del mundo, y ya está operando en {country}.\n\n{pain_hook}\n\nLo que hace diferente a Geotab:\n→ Video IA que procesa en el borde (no sube todo a la nube — tu privacidad importa)\n→ +430 integraciones — conecta tu ERP, tu despacho, tu mantenimiento, lo que necesites\n→ Plataforma abierta — tus datos son tuyos. Exporta cuando quieras\n→ #1 mundial en telemática comercial (ABI Research, 4 años consecutivos)\n\n{vertical_value}\n\nNo te pido que confíes en mi palabra. Te pido 30 minutos para que lo veas funcionando con datos reales de una flota como la tuya.'},
+    linkedin:{body:'{pain_stat}.\n\nY la mayoría de las flotas siguen tomando decisiones con datos de ayer. O peor: con intuición.\n\n5 millones de vehículos ya operan con Geotab. ¿Por qué?\n\n→ Video IA que procesa en el borde — previene, no solo graba\n→ 430+ integraciones — tu ERP, tu despacho, tu mantenimiento\n→ Plataforma abierta — tus datos son tuyos. Siempre\n→ 100 mil millones de datos procesados cada día\n\n#1 mundial en telemática comercial. 4 años consecutivos. No lo decimos nosotros — lo dice ABI Research.\n\n{cta_vertical}'},
+    whatsapp:{body:'Hola, soy de {partner}.\n\nPregunta directa: ¿cuántos sistemas diferentes usa tu flota que no se hablan entre sí? 📊\n\nTe lo pregunto porque {pain_hook_short} — y he visto flotas similares resolverlo en semanas, no meses.\n\nGeotab conecta 5 millones de vehículos en el mundo. Tiene +430 integraciones. Y es la plataforma #1 mundial en telemática 4 años seguidos.\n\nNo es humo — te puedo mostrar datos reales en 20 minutos. ¿Cuándo te conviene? 🟢'},
+    evento:{body:'{vertical_name} | {country}\n\n{pain_stat}.\n\n¿Tu flota ya tiene respuesta a esto?\n\n📊 Te invitamos a ver en vivo cómo operan las flotas que sí la tienen\n🔴 Demo con datos reales — no slides\n💡 Casos de {country} con resultados medibles\n🤝 Networking con operadores de tu industria\n\n📅 [FECHA] | 📍 [LUGAR]\n\nSin pitch de ventas. Solo datos, resultados, y respuestas.\nCupo limitado → confirma aquí.'},
+    googleads:{
+      headlines:['5M de vehículos ya usan Geotab','¿Tu flota adivina o decide con datos?','#1 mundial en telemática — 4 años','100B datos/día. Tu flota tiene cero.','+430 integraciones. Cero silos.','Plataforma abierta — Tus datos tuyos'],
+      descriptions:['5 millones de vehículos. 100 mil millones de datos al día. #1 ABI Research 4 años. Tu flota merece esa inteligencia. Demo 30 min.','¿{pain_hook_short}? La plataforma de telemática más grande del mundo ya resolvió eso. +430 integraciones. Demo gratis.'],
+      sitelinks:['Ver demo en vivo','Comparar vs competencia','430+ integraciones','Casos en {country}']
+    },
+    banner:{
+      headline:'5 millones de vehículos\nya saben la respuesta.',
+      sub:'#1 mundial en telemática. 4 años consecutivos. ¿Tu flota todavía adivina?',
+      cta:'Ve lo que no estás viendo',
+      sizes:['300x250','728x90','160x600','320x50']
+    },
+    totem:{
+      headline:'100 mil millones\nde datos al día.',
+      sub:'Así toman decisiones las flotas más grandes del mundo.',
+      cta:'Escanea → demo con datos reales',
+      footer:'geotab.com/{country_code}'
+    }
+  },
+  transporte:{email_subj:'¿Cuánto te cuesta no tener visibilidad total de tu flota?'},
+  alimentos:{email_subj:'Tu cadena de frío necesita más que un termómetro'},
+  construccion:{email_subj:'¿Sabes dónde está tu maquinaria ahora mismo?'}
+},
+gofocus:{
+  _default:{
+    email:{subj:'Esta semana tu flota tuvo 3 casi-accidentes. No lo sabes porque tu cámara solo graba.',body:'Dato: 5,300 accidentes fatales con camiones pesados en 2023. +43% en una década.\n\nLa mayoría de las dashcams del mercado te entregan el video DESPUÉS del incidente. Es como tener un seguro que solo funciona cuando ya chocaste.\n\n{pain_hook}\n\nGO FOCUS Plus es diferente porque procesa con IA directo en la cámara:\n→ Detecta tailgating y alerta al conductor con voz — resultado: -90% en pilotos reales\n→ Detecta celular al volante y lo corrige en el momento — resultado: -95%\n→ Detecta fatiga y distracción ANTES del microsueño\n→ El video se sincroniza con datos del motor en una línea de tiempo\n→ Procesa en el borde — no sube todo a la nube. Privacidad real, no marketing\n\n99% de los conductores apoyan el uso de dashcams (estudio Geotab, dic 2025). El problema nunca fue el conductor — fue la cámara equivocada.\n\n{vertical_value}'},
+    linkedin:{body:'{pain_stat}.\n\nY tu cámara actual solo te entrega el video DESPUÉS del accidente. Eso no es prevención — es evidencia para el abogado.\n\nGO FOCUS Plus procesa con IA en el borde:\n→ -90% tailgating (piloto real, no laboratorio)\n→ -95% uso de celular al volante\n→ Coaching de voz que corrige antes del impacto\n→ Privacidad real: procesa en cámara, no sube todo a la nube\n\n99% de conductores apoyan las dashcams cuando se usan bien (Geotab, dic 2025).\n\nEl problema nunca fue el conductor. Fue la cámara equivocada.\n\n{cta_vertical}'},
+    whatsapp:{body:'Hola, soy de {partner}.\n\nTe comparto un dato que me impactó: los accidentes fatales con camiones pesados subieron 43% en 10 años. Y el 95% de los conductores dice que el riesgo va en aumento.\n\nLa diferencia entre una flota que reacciona y una que previene es la tecnología que usa.\n\nGO FOCUS Plus de Geotab:\n→ -90% tailgating\n→ -95% celular al volante\n→ Coaching de voz en cabina\n→ Procesa en la cámara, no en la nube\n\n¿Te puedo mostrar un video de cómo funciona? Son 5 minutos. 📹'},
+    evento:{body:'SEGURIDAD VIAL | {country}\n\nEn 2023 hubo 5,300 accidentes fatales con camiones pesados. +43% en una década.\n\n¿Cuántos pudieron prevenirse?\n\n📹 Demo en vivo: GO FOCUS Plus detectando riesgos en tiempo real\n📊 Datos duros: -90% tailgating, -95% celular al volante\n🧠 Cómo funciona la IA en el borde (privacidad + velocidad)\n💬 Panel: conductores opinan sobre dashcams (99% las apoyan)\n\n📅 [FECHA] | 📍 [LUGAR]\n\nEsto no es un pitch de ventas. Es una conversación que tu flota necesita.'},
+    googleads:{
+      headlines:['-90% tailgating. Dato real, no promesa.','Tu cámara graba. La nuestra previene.','5,300 fatales/año. ¿Prevenibles?','-95% celular al volante — probado','IA en el borde = privacidad real','Coaching de voz que salva vidas'],
+      descriptions:['-90% tailgating. -95% celular. Datos de pilotos reales. GO FOCUS Plus procesa IA en la cámara, no en la nube. Demo 20 min.','Tu dashcam entrega video después del accidente. GO FOCUS Plus alerta al conductor ANTES. Esa es la diferencia. Demo.'],
+      sitelinks:['Video: así funciona','-90% tailgating (datos)','Privacidad en el borde','Demo en vivo']
+    },
+    banner:{
+      headline:'Tu cámara graba.\nLa nuestra previene.',
+      sub:'-90% tailgating. -95% celular. Datos reales, no promesas.',
+      cta:'Ve la diferencia',
+      sizes:['300x250','728x90','160x600','320x50']
+    },
+    totem:{
+      headline:'-90% tailgating.\n-95% celular.',
+      sub:'Datos reales. No marketing. GO FOCUS Plus.',
+      cta:'Escanea → video de cómo funciona',
+      footer:'geotab.com/go-focus-plus'
+    }
+  }
+},
+coldchain:{
+  _default:{
+    email:{subj:'Ayer se echó a perder un lote completo. El chofer dice que el refrigerador "estaba bien".',body:'30% de los perecederos se pierden por fallas en cadena de frío. Eso no es una estadística — es dinero, regulación y reputación.\n\nLa pregunta no es si va a pasar. Es cuándo. Y cuánto te va a costar.\n\n{pain_hook}\n\nIOX-COLD de Geotab no espera a que llegues al destino para decirte que hubo un problema:\n→ Monitoreo multi-zona en tiempo real — no un solo sensor para todo el camión\n→ Alerta 30 minutos ANTES de que la temperatura salga de rango\n→ Control remoto de setpoints — ajusta sin llamar al conductor\n→ Evidencia digital automática — HACCP, FSMA, GDP sin papeleo\n→ Trazabilidad origen-destino con timestamp inmutable\n\nCuando el auditor llegue, tu evidencia ya está lista. Cuando el cliente reclame, tus datos lo respaldan.\n\n{vertical_value}'},
+    linkedin:{body:'{pain_stat}.\n\n30% de perecederos se pierden por cadena de frío. Y la mayoría se enteran cuando ya es tarde.\n\nIOX-COLD de Geotab:\n→ Alerta 30 min antes de la desviación — no después\n→ Multi-zona: cada compartimento monitoreado\n→ Control remoto de temperatura\n→ Evidencia HACCP/FSMA automática — cero papeleo\n\nCuando el auditor llega, tu evidencia ya está lista.\nCuando el cliente reclama, tus datos te respaldan.\n\n{cta_vertical}'},
+    whatsapp:{body:'Hola, soy de {partner}.\n\n¿Tu equipo se entera de un problema de temperatura cuando ya llegó al destino? 🌡️\n\nIOX-COLD de Geotab alerta 30 minutos ANTES de que la carga se dañe. Multi-zona. Control remoto. Evidencia automática para auditorías.\n\n{pain_hook_short}\n\nTe puedo mostrar cómo funciona en 15 min — con datos de una operación real similar a la tuya.'},
+    evento:{body:'CADENA DE FRÍO | {country}\n\n30% de perecederos se pierden por fallas en temperatura. ¿Cuánto te cuesta a ti?\n\n🌡️ Demo en vivo: IOX-COLD alertando en tiempo real\n📋 Cómo automatizar cumplimiento HACCP/FSMA/GDP\n📊 Caso real: de auditoría en papel a evidencia digital\n💡 Networking con operadores de cadena de frío en {country}\n\n📅 [FECHA] | 📍 [LUGAR]\n\nTrae tu peor historia de cadena de frío. Saldrás con la solución.'},
+    googleads:{
+      headlines:['Cadena de frío en tiempo real','IOX-COLD: alertas antes de la pérdida','Cumple HACCP/FSMA automáticamente','Monitoreo multi-zona — Geotab','Protege tu carga perecedera','Trazabilidad origen-destino'],
+      descriptions:['IOX-COLD: monitoreo multi-zona en tiempo real. Alertas antes de la pérdida. Evidencia digital para auditorías. Demo.','¿Tu cadena de frío tiene puntos ciegos? Geotab IOX-COLD: trazabilidad completa + cumplimiento regulatorio.'],
+      sitelinks:['Demo IOX-COLD','Cumplimiento HACCP','Cotización','Casos de Éxito']
+    },
+    banner:{
+      headline:'Cada grado cuenta.\nProtege tu carga.',
+      sub:'IOX-COLD: monitoreo multi-zona + alertas proactivas.',
+      cta:'Protege tu cadena de frío',
+      sizes:['300x250','728x90','160x600','320x50']
+    },
+    totem:{
+      headline:'¿Puedes probar que\ntu carga llegó bien?',
+      sub:'IOX-COLD genera evidencia digital automática.',
+      cta:'Escanea para conocer IOX-COLD →',
+      footer:'geotab.com/cold-chain'
+    }
+  }
+},
+safety:{
+  _default:{
+    email:{subj:'El último accidente de tu flota costó más de lo que crees. El siguiente se puede evitar.',body:'Hablemos claro: los accidentes fatales con camiones pesados aumentaron 43% en 10 años. No es una tendencia — es una crisis.\n\nY el 34% de los conductores ha considerado dejar la profesión por el estrés en carretera.\n\n{pain_hook}\n\nGeotab no te da solo datos — te da tiempo. Tiempo para reaccionar ANTES del impacto:\n→ GO FOCUS Plus detecta fatiga y distracción 30 segundos antes del incidente\n→ Coaching de voz en cabina que corrige en el momento — sin humillar al conductor\n→ Scoring basado en millones de kilómetros de datos reales — no en la opinión de un supervisor\n→ Evidencia legal que protege al conductor y a la empresa\n→ Resultado probado: -90% tailgating, -95% celular al volante\n\nEl 99% de los conductores apoyan las dashcams cuando se usan correctamente (estudio Geotab, 2025). El problema no es el conductor — es no darle las herramientas correctas.\n\n{vertical_value}'},
+    linkedin:{body:'+43% de accidentes fatales con camiones en 10 años.\n34% de conductores han pensado en dejar la profesión.\n{pain_stat}.\n\n¿Cuántos accidentes más necesitamos para actuar?\n\nGeotab detecta riesgos 30 segundos ANTES del impacto:\n→ -90% tailgating (dato real de piloto)\n→ -95% celular al volante\n→ Coaching de voz que corrige sin humillar\n→ Scoring con datos de 5M de vehículos\n\n99% de conductores apoyan las dashcams cuando se usan bien.\n\nEl problema nunca fue el conductor. Fue no darle las herramientas correctas.\n\n{cta_vertical}'},
+    whatsapp:{body:'Hola, soy de {partner}.\n\n¿Sabías que los accidentes fatales con camiones subieron 43% en 10 años? Y que el 34% de conductores ha pensado en dejar el volante por estrés.\n\n{pain_hook_short}\n\nGeotab tiene resultados concretos:\n→ -90% tailgating\n→ -95% celular al volante\n→ Coaching de voz en cabina\n→ 99% de conductores lo apoyan\n\n¿Te puedo mostrar cómo funciona? 20 minutos con datos reales. 🛡️'},
+    evento:{body:'SEGURIDAD VIAL | {country}\n\n+43% accidentes fatales en 10 años. 34% de conductores quieren dejar el volante.\n\n¿Qué estamos haciendo al respecto?\n\n📹 GO FOCUS Plus en vivo: detección de fatiga y distracción\n📊 -90% tailgating, -95% celular — datos reales\n🧠 99% de conductores apoyan dashcams: cómo lograrlo\n💬 Mesa redonda: seguridad vial en {country}\n\n📅 [FECHA] | 📍 [LUGAR]\n\nEsto no es otro evento de telemática. Es una conversación urgente.'},
+    googleads:{
+      headlines:['Previene accidentes con IA','Scoring de conductores en tiempo real','Reduce siniestralidad con datos','Coaching de voz en cabina','Seguridad vial — Geotab','Menos accidentes. Más ahorro.'],
+      descriptions:['Video IA + scoring + coaching en cabina. Previene antes de lamentar. Evidencia legal integrada. Solicita demo.','Los accidentes cuestan vidas y millones. Geotab detecta riesgos antes del incidente. Demo gratis hoy.'],
+      sitelinks:['Demo Seguridad','ROI Seguridad','Casos de Éxito','Cotización']
+    },
+    banner:{
+      headline:'Prevenir > Reaccionar.\nTu flota más segura.',
+      sub:'Video IA + Scoring + Coaching = Menos accidentes.',
+      cta:'Previene con Geotab',
+      sizes:['300x250','728x90','160x600','320x50']
+    },
+    totem:{
+      headline:'¿Cuánto te cuestan\nlos accidentes?',
+      sub:'Geotab previene con IA, datos y coaching.',
+      cta:'Escanea para calcular tu ahorro →',
+      footer:'geotab.com/safety'
+    }
+  }
+},
+vitality:{_default:{
+  email:{subj:'Multaste a 12 conductores este mes. ¿Cuántos mejoraron? Cero.',body:'Las multas, los descuentos, los regaños — nada de eso cambia comportamiento de forma sostenida. Y lo sabes.\n\n{pain_hook}\n\nGeotab Vitality usa ciencia del comportamiento comprobada — la misma que usan las aseguradoras más grandes del mundo:\n→ Los conductores reciben incentivos reales por manejar bien — no castigos por manejar mal\n→ Los datos son objetivos — kilómetros reales, frenadas reales, velocidades reales\n→ El conductor ELIGE mejorar porque le conviene, no porque lo obligan\n→ Los resultados son sostenidos — no picos de un mes que desaparecen\n\n34% de conductores ha pensado en dejar el volante. ¿Quieres que se queden los buenos? Dales una razón.\n\n{vertical_value}'},
+  linkedin:{body:'{pain_stat}.\n\n34% de conductores ha considerado dejar la profesión. ¿Cómo retienes a los buenos?\n\nVigilar genera resistencia. Multar genera resentimiento. Los datos muestran que solo la motivación genera cambio sostenible.\n\nGeotab Vitality:\n→ Incentivos basados en desempeño real\n→ Ciencia del comportamiento comprobada\n→ El conductor ELIGE mejorar\n→ Resultados sostenidos, no picos de un mes\n\nLa pregunta no es "¿cómo controlo a mis conductores?"\nEs "¿cómo hago que quieran quedarse y mejorar?"\n\n{cta_vertical}'},
+  whatsapp:{body:'Hola, soy de {partner}.\n\nPregunta honesta: ¿las multas y los regaños han mejorado el manejo de tu flota? 🤔\n\n34% de conductores ha pensado en dejar la profesión. Los buenos se van primero.\n\nGeotab Vitality usa ciencia del comportamiento:\n→ Incentivos reales por buen manejo\n→ Datos objetivos, no opiniones\n→ Cambio sostenible\n\n{pain_hook_short}\n\n¿Te cuento cómo funciona? 15 min. 🧠'},
+  evento:{body:'RETENCIÓN Y SEGURIDAD | {country}\n\n34% de conductores ha pensado en dejar el volante. Los buenos se van primero.\n\n¿Cómo retienes talento Y mejoras seguridad al mismo tiempo?\n\n🧠 Demo: Geotab Vitality — ciencia del comportamiento aplicada\n📊 Incentivos vs. castigos: qué dicen los datos\n💬 Panel: conductores que cambiaron su forma de manejar\n🏆 Casos de éxito en retención + seguridad\n\n📅 [FECHA] | 📍 [LUGAR]\n\nEste evento no es sobre tecnología. Es sobre personas.'},
+  googleads:{
+    headlines:['Conductores motivados = Menos accidentes','Vitality: incentivos por buen manejo','Ciencia del comportamiento — Geotab','Motiva. No vigiles.','Reduce siniestralidad 30%','Conductores que QUIEREN mejorar'],
+    descriptions:['Geotab Vitality: ciencia del comportamiento + datos reales. Incentivos personalizados. Conductores más seguros. Demo.','Vigilar genera resistencia. Motivar genera cambio. Vitality premia el buen manejo con datos objetivos.'],
+    sitelinks:['Demo Vitality','Ciencia detrás','Resultados','Cotización']
+  },
+  banner:{
+    headline:'Motivar > Vigilar.\nConductores seguros.',
+    sub:'Vitality: incentivos basados en datos reales.',
+    cta:'Conoce Vitality',
+    sizes:['300x250','728x90','160x600','320x50']
+  },
+  totem:{
+    headline:'¿Y si tus conductores\nQUISIERAN manejar mejor?',
+    sub:'Vitality: ciencia del comportamiento + datos.',
+    cta:'Escanea para conocer Vitality →',
+    footer:'geotab.com/vitality'
+  }
+}},
+fillfleet:{_default:{
+  email:{subj:'Tienes 200 vehículos con Geotab. Los otros 80 te están costando dinero — y no lo sabes.',body:'Ya conoces los números. Ya viste el ROI. Ya sabes lo que Geotab hace por tu operación.\n\nEntonces ¿por qué sigues teniendo vehículos sin conectar?\n\n{pain_hook}\n\nCada vehículo sin telemática es un agujero negro en tu operación:\n→ Combustible que se va sin que nadie lo mida\n→ Conductores que manejan sin scoring ni coaching\n→ Mantenimiento reactivo que cuesta 3x más que el preventivo\n→ Datos incompletos que arruinan tus reportes y decisiones\n\nLa matemática es simple: si Geotab te ahorra $1,200 USD/vehículo/año, cada vehículo sin conectar es $1,200 que estás dejando en la calle.\n\n80 vehículos sin Geotab = $96,000 USD perdidos al año.\n\n{vertical_value}\n\nYa diste el paso difícil. Ahora solo falta terminarlo.'},
+  linkedin:{body:'{pain_stat}.\n\n¿Tienes telemática en parte de tu flota?\nEntonces ya sabes que funciona.\n\nAhora haz la cuenta:\n→ $1,200 USD ahorro promedio/vehículo/año\n→ 50 vehículos sin conectar = $60,000 perdidos\n→ 100 vehículos = $120,000\n\nCada vehículo sin Geotab no es un "pendiente" — es dinero real que se va cada mes.\n\nYa diste el paso difícil. Ahora solo falta terminarlo.\n\n{cta_vertical}'},
+  whatsapp:{body:'Hola, soy de {partner}.\n\nTienes Geotab en parte de tu flota — eso significa que ya viste los resultados. 📊\n\nLa pregunta es: ¿cuánto te están costando los vehículos que NO tienen?\n\n→ $1,200 USD ahorro/vehículo/año (promedio)\n→ Multiplicalo por los que te faltan\n\nConectar el resto es rápido. ¿Hacemos los números juntos? 15 min. 💰'},
+  evento:{body:'EXPANDE TU GEOTAB | {country}\n\nYa tienes Geotab. Ya viste los resultados.\n\n¿Cuánto te cuestan los vehículos que NO tienen?\n\n📊 Taller: calcula tu ROI de cobertura total\n💰 $1,200 USD ahorro promedio por vehículo\n🔧 Cómo expandir en semanas, no meses\n💡 Casos de flotas que pasaron de 60% a 100% de cobertura\n\n📅 [FECHA] | 📍 [LUGAR]\n\nTrae tus números. Saldrás con un plan.'},
+  googleads:{
+    headlines:['¿Cuántos vehículos sin conectar?','Expande Geotab a toda tu flota','100% cobertura = 100% visibilidad','ROI se multiplica por vehículo','Sin puntos ciegos — Geotab','Conecta toda tu flota hoy'],
+    descriptions:['Cada vehículo sin telemática es combustible perdido y riesgos sin detectar. Conecta 100% de tu flota. Cotiza.','Ya conoces Geotab. Ahora imagina visibilidad total. El ROI se multiplica con cada vehículo conectado.'],
+    sitelinks:['Cotización Expansión','ROI Calculator','Demo','Casos de Éxito']
+  },
+  banner:{
+    headline:'Cada vehículo sin conectar\nes dinero perdido.',
+    sub:'Expande Geotab. Multiplica tu ROI.',
+    cta:'Conecta toda tu flota',
+    sizes:['300x250','728x90','160x600','320x50']
+  },
+  totem:{
+    headline:'¿Qué % de tu flota\ntiene telemática?',
+    sub:'Conecta el 100%. Multiplica tu ROI.',
+    cta:'Escanea para cotizar →',
+    footer:'geotab.com/fill-the-fleet'
+  }
+}},
+displacement:{_default:{
+  email:{subj:'Tu proveedor de telemática vende directo a tus clientes. ¿Lo sabías?',body:'Pregunta que nadie quiere hacerse: ¿tu proveedor de telemática también vende directo al mismo mercado donde tú operas?\n\nSi la respuesta es sí, no tienes un socio — tienes un competidor disfrazado de proveedor.\n\n{pain_hook}\n\nGeotab es channel-first. No vendemos directo. Tu negocio es tu negocio. Punto.\n\nPero eso es solo el principio:\n→ #1 mundial en telemática comercial — ABI Research, 4 años consecutivos\n→ 5 millones de vehículos conectados vs. los que dice tener tu proveedor actual\n→ +430 integraciones reales en Marketplace vs. ecosistemas cerrados de 30-50\n→ API abierta + SDK — construye lo que necesites encima de la plataforma\n→ Tus datos son tuyos — exporta cuando quieras, integra lo que quieras\n→ Migración en semanas, no meses — sin downtime operativo\n\n{vertical_value}\n\nNo te pido que cambies. Te pido que compares con datos — no con marketing.'},
+  linkedin:{body:'{pain_stat}.\n\nPregunta incómoda: ¿tu proveedor de telemática vende directo a tus mismos clientes?\n\nSi la respuesta es sí, no tienes un socio. Tienes un competidor con acceso a tus datos.\n\nGeotab es channel-first. No competimos con nuestros partners.\n\n→ #1 ABI Research — 4 años consecutivos\n→ 5M vehículos vs. flotas que se cuentan en marketing decks\n→ 430+ integraciones vs. ecosistemas cerrados\n→ Plataforma abierta — tus datos, tu API, tu negocio\n\nLa pregunta no es si Geotab es mejor.\nLa pregunta es por qué sigues con quien compite contigo.\n\n{cta_vertical}'},
+  whatsapp:{body:'Hola, soy de {partner}.\n\nPregunta directa: ¿tu proveedor actual de telemática también vende directo al mismo mercado que tú? 🤔\n\nGeotab no. Somos channel-first — tu negocio es tu negocio.\n\nAdemás:\n→ #1 mundial 4 años seguidos\n→ 5M vehículos conectados\n→ +430 integraciones\n→ Tus datos son tuyos\n\n{pain_hook_short}\n\n¿Comparamos en 20 minutos con datos reales? Sin compromiso.'},
+  evento:{body:'PLATAFORMA ABIERTA vs. CERRADA | {country}\n\n¿Tu proveedor de telemática es tu socio... o tu competencia?\n\n📊 Comparativa real: +430 integraciones vs ecosistemas cerrados\n🔓 API abierta vs vendor lock-in — casos reales\n📈 Cómo migrar sin downtime operativo\n💡 Por qué el #1 mundial es channel-first\n\n📅 [FECHA] | 📍 [LUGAR]\n\nTrae tu contrato actual. Te ayudamos a comparar.'},
+  googleads:{
+    headlines:['¿Atado a Samsara o Motive?','Migra a plataforma abierta','Tus datos son tuyos — Geotab','+300 integraciones vs caja negra','Libera tu flota — Migra fácil','Sin vendor lock-in — Geotab'],
+    descriptions:['¿Tu proveedor te cobra por tus datos? Geotab: plataforma abierta, +300 integraciones, sin lock-in. Migra hoy.','Samsara/Motive = ecosistema cerrado. Geotab = plataforma abierta. Tus datos, tus reglas. Compara gratis.'],
+    sitelinks:['Comparativa Gratis','Migración Fácil','Demo','+300 Integraciones']
+  },
+  banner:{
+    headline:'¿Tu telemática\nte tiene cautivo?',
+    sub:'Geotab: plataforma abierta. Tus datos son tuyos.',
+    cta:'Libera tu flota',
+    sizes:['300x250','728x90','160x600','320x50']
+  },
+  totem:{
+    headline:'Plataforma abierta\nvs. caja negra.',
+    sub:'Geotab: tus datos, +300 integraciones, sin lock-in.',
+    cta:'Escanea para comparar →',
+    footer:'geotab.com/switch'
+  }
+}},
+goaway:{_default:{
+  email:{subj:'¿Sabes dónde están tus activos ahora mismo?',body:'Trailers, contenedores, generadores, maquinaria estacionaria... tus activos de mayor valor muchas veces están fuera del radar.\n\n{pain_hook}\n\nGO Anywhere de Geotab:\n• Compacto y resistente (IP67)\n• Batería de larga duración\n• Integrado nativamente en MyGeotab\n• Modo estándar o inmediato\n\n{vertical_value}'},
+  linkedin:{body:'📍 {pain_stat}\n\nSi no lo puedes ver, no lo puedes proteger.\n\nGO Anywhere:\n✅ Rastreo GPS para activos sin motor\n✅ Batería de larga duración\n✅ IP67 resistente\n✅ Nativo en MyGeotab\n\n{cta_vertical}'},
+  whatsapp:{body:'Hola, soy {partner} de Geotab 🟢\n\n📍 ¿Tienes activos sin rastrear? (trailers, generadores, contenedores)\n\nGO Anywhere:\n✅ GPS sin depender de motor\n✅ Batería de larga duración\n✅ Resistente IP67\n\n{pain_hook_short}\n\n¿Te lo muestro?'},
+  evento:{body:'INVITACIÓN | Protege tus Activos\n\n📍 {pain_hook_short}\n\n📊 Demo: GO Anywhere\n💡 Rastreo sin motor, sin cables\n\n📅 [FECHA] | 📍 [LUGAR]'},
+  googleads:{
+    headlines:['Rastrea activos sin motor','GO Anywhere: batería larga duración','Trailers y contenedores visibles 24/7','IP67 + MyGeotab nativo','Protege tus activos — Geotab','GPS para trailers y generadores'],
+    descriptions:['GO Anywhere: tracker compacto IP67 para trailers, contenedores, generadores. Batería larga duración. Demo gratis.','Si no lo ves, no lo proteges. GO Anywhere: GPS nativo en MyGeotab para activos sin motor. Cotiza.'],
+    sitelinks:['Demo GO Anywhere','Cotización','Casos de Éxito','Especificaciones']
+  },
+  banner:{
+    headline:'Si no lo ves,\nno lo proteges.',
+    sub:'GO Anywhere: GPS para activos sin motor. IP67.',
+    cta:'Rastrea tus activos',
+    sizes:['300x250','728x90','160x600','320x50']
+  },
+  totem:{
+    headline:'¿Dónde están tus\ntrailers ahora mismo?',
+    sub:'GO Anywhere: batería larga duración, IP67.',
+    cta:'Escanea para conocer GO Anywhere →',
+    footer:'geotab.com/go-anywhere'
+  }
+}},
+marketplace:{_default:{
+  email:{subj:'¿Cuántas herramientas desconectadas usa tu flota?',body:'Cada sistema aislado es un silo de datos. Geotab Marketplace integra +350 soluciones en una plataforma.\n\n{pain_hook}\n\nCon Order Now puedes activar soluciones con un click:\n• Mantenimiento predictivo\n• Routing y optimización\n• Cámaras y sensores\n• ELD y cumplimiento\n• Y mucho más\n\n{vertical_value}'},
+  linkedin:{body:'🔗 {pain_stat}\n\nDeja de usar herramientas aisladas.\n\nGeotab Marketplace:\n✅ +350 soluciones integradas\n✅ Order Now: activa con 1 click\n✅ Sin silos de datos\n\n{cta_vertical}'},
+  whatsapp:{body:'Hola, soy {partner} de Geotab 🟢\n\n🔗 ¿Sabías que Geotab tiene +350 integraciones?\n\nMarketplace conecta todo:\n✅ Mantenimiento\n✅ Routing\n✅ Cámaras\n✅ ELD\n\nTodo en una plataforma.\n\n¿Te muestro las opciones para tu industria?'},
+  evento:{body:'INVITACIÓN | Ecosistema Geotab Marketplace\n\n🔗 {pain_hook_short}\n\n📊 Demo: Order Now\n💡 +350 integraciones disponibles\n\n📅 [FECHA] | 📍 [LUGAR]'},
+  googleads:{
+    headlines:['+350 integraciones — Geotab','Order Now: activa con 1 click','Marketplace: extiende tu plataforma','Sin silos. Sin fricciones.','Ecosistema abierto — Geotab','Mantenimiento + Routing + Cámaras'],
+    descriptions:['Geotab Marketplace: +350 soluciones integradas. Mantenimiento, routing, cámaras, ELD. Activa con 1 click.','¿Herramientas aisladas? Marketplace las conecta en una plataforma. Order Now: un click. Demo gratis.'],
+    sitelinks:['Explorar Marketplace','Order Now','Demo','Integraciones']
+  },
+  banner:{
+    headline:'Una plataforma.\nCientos de soluciones.',
+    sub:'Marketplace: +350 integraciones. Order Now.',
+    cta:'Explora el Marketplace',
+    sizes:['300x250','728x90','160x600','320x50']
+  },
+  totem:{
+    headline:'+350 soluciones.\nUna plataforma.',
+    sub:'Geotab Marketplace: activa con un click.',
+    cta:'Escanea para explorar →',
+    footer:'marketplace.geotab.com'
+  }
+}},
+powerplay:{_default:{
+  email:{subj:'Power Play: cada suscripción cuenta',body:'Tu esfuerzo merece recompensa. Power Play premia cada activación de suscripción Geotab.\n\nCómo funciona:\n• Acumula puntos por cada suscripción activada\n• Desbloquea beneficios exclusivos\n• Premiación trimestral\n\nMás vendes, más ganas. Simple.\n\n¿Listo para jugar?'},
+  linkedin:{body:'🏆 Power Play de Geotab\n\nCada suscripción activada suma puntos.\nCada punto te acerca a beneficios exclusivos.\n\n✅ Incentivos claros\n✅ Beneficios escalonados\n✅ Premiación trimestral\n\n¿Ya estás participando?'},
+  whatsapp:{body:'Hola 🟢\n\n🏆 ¿Ya conoces Power Play de Geotab?\n\nCada suscripción que actives suma puntos:\n✅ Beneficios exclusivos\n✅ Premiación trimestral\n✅ Más vendes, más ganas\n\n¿Te explico cómo participar?'},
+  evento:{body:'INVITACIÓN | Power Play Geotab\n\n🏆 Programa de incentivos para partners\n\n💰 Puntos por suscripción\n🎁 Beneficios exclusivos\n📊 Premiación trimestral\n\n📅 [FECHA] | 📍 [LUGAR]'},
+  googleads:{
+    headlines:['Power Play — Gana con Geotab','Incentivos por cada suscripción','Tu esfuerzo tiene recompensa','Más vendes, más ganas','Programa de partners Geotab','Beneficios exclusivos — Geotab'],
+    descriptions:['Power Play: acumula puntos por cada suscripción activada. Beneficios escalonados. Premiación trimestral. Únete.','Ser partner de Geotab tiene recompensa. Power Play premia cada activación con beneficios exclusivos.'],
+    sitelinks:['Únete a Power Play','Beneficios','Reglas','Contacto']
+  },
+  banner:{
+    headline:'Tu crecimiento\ntiene recompensa.',
+    sub:'Power Play: incentivos por cada suscripción activada.',
+    cta:'Activa tu Power Play',
+    sizes:['300x250','728x90','160x600','320x50']
+  },
+  totem:{
+    headline:'Más vendes,\nmás ganas.',
+    sub:'Power Play: incentivos exclusivos para partners.',
+    cta:'Escanea para participar →',
+    footer:'geotab.com/power-play'
+  }
+}}
+};
+
+// ════════════════════════════════════════════
+// PAIN STATS & HOOKS BY VERTICAL
+// ════════════════════════════════════════════
+const PAIN_STATS={
+  transporte:'El combustible representa hasta 35% del costo operativo de una flota — y el ralentí desperdicia entre 1 y 5 litros por hora que nadie mide',
+  ultimamilla:'El 68% de las flotas de última milla no pueden dar ETAs precisos. Cada entrega fallida cuesta entre $12 y $30 USD en re-despacho',
+  alimentos:'30% de perecederos se pierden por fallas en cadena de frío. Un solo lote de farmacéuticos dañado puede costar más de $100,000 USD',
+  oilgas:'Los accidentes viales son la primera causa de muerte laboral en oil & gas — más que explosiones, más que caídas',
+  construccion:'20% del equipo de construcción está subutilizado o sin rastrear. Cada hora de maquinaria pesada sin monitorear cuesta entre $150 y $500 USD',
+  gobierno:'Hasta 30% del uso de vehículos oficiales es personal no autorizado. Cada año los contribuyentes pagan millones en combustible fantasma',
+  leasing:'Las flotas arrendadas sin telemática tienen 2x más riesgo de mal uso — y las reclamaciones por siniestro se duplican',
+  pasajeros:'Los accidentes de transporte público generan las demandas civiles más costosas del sector — y las aseguradoras lo saben',
+  servicios:'El 40% del tiempo de un técnico de campo se pierde en traslados ineficientes. Eso es 2 días a la semana sin generar ingreso',
+  agro:'Cada hora no verificada de maquinaria agrícola cuesta entre $80 y $200 USD en mantenimiento reactivo que pudo ser preventivo'
+};
+
+const SIZE_HOOKS={
+  smb:'Con una flota pequeña, un solo accidente puede sacarte del negocio. Un solo conductor sin control puede costarte más que su salario completo. No tienes margen para adivinar.',
+  mid:'Tu flota ya creció, pero tu visibilidad no. Tienes 3 plataformas que no se hablan, reportes que llegan tarde, y decisiones basadas en lo que alguien "cree" que pasó. Es hora de profesionalizar.',
+  enterprise:'Con +500 vehículos, cada 1% de mejora en eficiencia vale decenas de miles de dólares. Y cada punto ciego es un riesgo legal, financiero y operativo que se multiplica. A esta escala, los datos no son un lujo — son supervivencia.'
+};
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let activePains=[];
+let debounceTimer=null;
+let selectedPartnerData=null;
+
+function $(id){return document.getElementById(id);}
+function debounceGen(){clearTimeout(debounceTimer);debounceTimer=setTimeout(generate,500);}
+
+function onPartnerChange(){
+  const sel=$('partner');
+  const opt=sel.options[sel.selectedIndex];
+  if(sel.value==='_custom'){
+    $('customPartnerRow').style.display='';
+    selectedPartnerData=null;
+    $('partnerInfo').innerHTML='';
+  }else if(sel.value){
+    $('customPartnerRow').style.display='none';
+    selectedPartnerData={
+      name:opt.textContent.split('—')[0].split('(')[0].trim(),
+      pam:opt.dataset.pam||'',
+      budget:parseFloat(opt.dataset.budget)||0,
+      type:opt.dataset.type||'reseller',
+      country:opt.dataset.country||''
+    };
+    const pt=PARTNER_TYPES[selectedPartnerData.type]||PARTNER_TYPES.reseller;
+    $('partnerInfo').innerHTML=`<div class="partner-info"><strong>${selectedPartnerData.name}</strong><br>PAM: ${selectedPartnerData.pam} | Budget: $${selectedPartnerData.budget.toLocaleString()} | Tipo: ${pt.name}<br><em style="color:var(--muted);font-size:0.75rem">Tono sugerido: ${pt.tone} — Foco: ${pt.focus}</em></div>`;
+    // Auto-set country if partner has one
+    const countryMap={mx:'mx',co:'co',cl:'cl',ar:'ar',pe:'pe',ec:'ec',pr:'pr',ca:'ca'};
+    if(selectedPartnerData.country && countryMap[selectedPartnerData.country]){
+      $('country').value=countryMap[selectedPartnerData.country];
+    }
+  }else{
+    $('customPartnerRow').style.display='none';
+    selectedPartnerData=null;
+    $('partnerInfo').innerHTML='';
+  }
+  generate();
+}
+
+// ════════════════════════════════════════════
+// PAIN CHIPS
+// ════════════════════════════════════════════
+function buildPainChips(){
+  const v=$('vertical').value;
+  const pains=VERTICALS[v]?.pains||[];
+  activePains=[];
+  $('painChips').innerHTML=pains.map(p=>`<div class="chip chip-sm" onclick="togglePain(this)">${p}</div>`).join('');
+}
+function togglePain(el){
+  el.classList.toggle('active');
+  const p=el.textContent;
+  if(el.classList.contains('active')){if(!activePains.includes(p))activePains.push(p);}
+  else{activePains=activePains.filter(x=>x!==p);}
+}
+
+// ════════════════════════════════════════════
+// GENERATE
+// ════════════════════════════════════════════
+function generate(){
+  const campKey=$('campaign').value;
+
+  // Show/hide custom fields
+  const cf=$('customFields');
+  if(campKey==='custom'){cf.classList.add('show');}else{cf.classList.remove('show');}
+
+  if(!campKey){$('emptyState').style.display='';$('outputArea').style.display='none';$('campInfo').innerHTML='';return;}
+
+  // Build campaign object (preset or custom)
+  let camp;
+  if(campKey==='custom'){
+    const cName=$('customName').value;
+    const cUmbrella=$('customUmbrella').value;
+    if(!cName||!cUmbrella){
+      $('campInfo').innerHTML='<div class="camp-info"><div class="camp-tag">NUEVA</div><h3>Completa los campos</h3><p>Escribe al menos el nombre y mensaje principal de la campaña para generar la bajada.</p></div>';
+      $('emptyState').style.display='none';$('outputArea').style.display='none';return;
+    }
+    const cProducts=($('customProducts').value||'GO Device, MyGeotab').split(',').map(s=>s.trim()).filter(Boolean);
+    camp={
+      name:cName,
+      tag:'NUEVA CAMPAÑA',
+      desc:$('customNarrative').value||cUmbrella,
+      umbrella:cUmbrella,
+      narrative:$('customNarrative').value||cUmbrella,
+      pillars:['Mensaje clave','Propuesta de valor','Diferenciador'],
+      cta:$('customCta').value||'Conoce más',
+      products:cProducts,
+      kpi:$('customKpi').value||'Resultados medibles para tu operación'
+    };
+  }else{
+    camp=CAMPAIGNS[campKey];
+  }
+
+  const country=COUNTRIES[$('country').value];
+  const countryCode=$('country').value;
+  const vert=VERTICALS[$('vertical').value];
+  const size=$('clientSize').value;
+  let partner;
+  if($('partner').value==='_custom'){
+    partner=$('partnerCustom').value||'[Tu empresa]';
+  }else if(selectedPartnerData){
+    partner=selectedPartnerData.name;
+  }else{
+    partner='[Tu empresa]';
+  }
+  const localCtx=$('localContext').value;
+  const partnerType=selectedPartnerData?PARTNER_TYPES[selectedPartnerData.type]:null;
+
+  // Campaign info card
+  $('campInfo').innerHTML=`<div class="camp-info"><div class="camp-tag">${camp.tag}</div><h3>${camp.name}</h3><p>${camp.desc}</p></div>`;
+
+  // Build replacements
+  const painHook=activePains.length>0?
+    'Tu equipo nos dijo que enfrenta: '+activePains.join(', ')+'. Geotab tiene soluciones específicas para cada uno de estos desafíos.':
+    SIZE_HOOKS[size];
+  const painHookShort=activePains.length>0?activePains.slice(0,2).join(' y '):vert.pains[0];
+  const painStat=PAIN_STATS[$('vertical').value];
+  const ctaVertical=camp.cta+' → Solicita una demo para '+vert.name.toLowerCase();
+  const vertValue=vert.value;
+  const vertValueShort=vert.value.split(',')[0];
+
+  const replacements={
+    '{partner}':partner,
+    '{pain_hook}':painHook,
+    '{pain_hook_short}':painHookShort,
+    '{pain_stat}':painStat,
+    '{cta_vertical}':ctaVertical,
+    '{vertical_value}':vertValue,
+    '{vertical_value_short}':vertValueShort,
+    '{vertical_name}':vert.name,
+    '{country}':country.name,
+    '{country_code}':countryCode
+  };
+
+  function rep(str){
+    let s=str;
+    for(const[k,v] of Object.entries(replacements)){s=s.split(k).join(v);}
+    return s;
+  }
+
+  // Get messages for this campaign (or build dynamic ones for custom)
+  let msgs,vertMsgs={};
+  if(campKey==='custom'){
+    msgs={
+      email:{subj:camp.name+': '+camp.umbrella,body:camp.umbrella+'\n\n'+camp.narrative+'\n\n{pain_hook}\n\nCon Geotab puedes:\n'+camp.products.map(p=>'• '+p).join('\n')+'\n\nResultados: '+camp.kpi+'\n\n{vertical_value}'},
+      linkedin:{body:'🔹 {pain_stat}\n\n'+camp.umbrella+'\n\n'+camp.narrative+'\n\n'+camp.products.map(p=>'✅ '+p).join('\n')+'\n\n{cta_vertical}'},
+      whatsapp:{body:'Hola, soy {partner} de Geotab 🟢\n\n'+camp.umbrella+'\n\n{pain_hook_short}\n\n'+camp.products.map(p=>'✅ '+p).join('\n')+'\n\n¿Te gustaría saber más? Puedo mostrarte en 15 min.'},
+      evento:{body:'INVITACIÓN | '+camp.name+'\n\n🎯 {pain_hook_short}\n📊 '+camp.umbrella+'\n💡 '+camp.kpi+'\n\n📅 Fecha: [FECHA]\n📍 Lugar: [LUGAR]\n\nCupo limitado. Confirma tu asistencia.'},
+      googleads:{
+        headlines:[camp.name,camp.umbrella.substring(0,30),'{pain_hook_short}','Solicita demo gratis','Geotab — {country}',camp.cta],
+        descriptions:[camp.umbrella+' '+camp.kpi+'. Solicita demo.','{pain_hook_short}. '+camp.narrative.substring(0,60)+'. Demo gratis.'],
+        sitelinks:['Demo Gratis','Casos de Éxito','Cotización','Contacto']
+      },
+      banner:{
+        headline:camp.umbrella.substring(0,40),
+        sub:camp.narrative.substring(0,80),
+        cta:camp.cta,
+        sizes:['300x250','728x90','160x600','320x50']
+      },
+      totem:{
+        headline:camp.umbrella.substring(0,40),
+        sub:camp.kpi.substring(0,60),
+        cta:'Escanea para saber más →',
+        footer:'geotab.com'
+      }
+    };
+  }else{
+    msgs=MESSAGES[campKey]?._default||{};
+    vertMsgs=MESSAGES[campKey]?.[$('vertical').value]||{};
+  }
+
+  // Build output
+  let html='';
+
+  // 1. GLOBAL MESSAGE
+  html+=`<div class="global-msg">`;
+  html+=`<div class="umbrella">"${camp.umbrella}"</div>`;
+  html+=`<div class="narrative">${camp.narrative}</div>`;
+  html+=`<div class="pillars">`;
+  camp.pillars.forEach((p,i)=>{
+    const cls=['ctx','dat','ia'][i]||'ctx';
+    html+=`<div class="pillar ${cls}">${p}</div>`;
+  });
+  html+=`</div></div>`;
+
+  // 2. LOCALIZED MESSAGES
+  const channels=[
+    {key:'email',type:'email',icon:'📧',label:'Email Marketing'},
+    {key:'linkedin',type:'linkedin',icon:'💼',label:'LinkedIn / Redes Sociales'},
+    {key:'whatsapp',type:'whatsapp',icon:'💬',label:'WhatsApp Prospección'},
+    {key:'evento',type:'evento',icon:'📅',label:'Invitación a Evento'}
+  ];
+
+  // Partner personalization hint
+  let partnerHint='';
+  if(partnerType){
+    partnerHint=`<div class="partner-info" style="margin-bottom:1rem"><strong>Personalización ${partnerType.name}:</strong> Tono ${partnerType.tone}. ${partnerType.hook}</div>`;
+  }
+
+  html+=`<div class="output-section"><h3><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Mensajes Localizados para ${country.name} — ${vert.name}${selectedPartnerData?'<span class="partner-badge">'+partner+'</span>':''}</h3>${partnerHint}`;
+
+  channels.forEach(ch=>{
+    const m=msgs[ch.key];
+    if(!m)return;
+    const subj=rep(vertMsgs.email_subj||m.subj||'');
+    const body=rep(m.body);
+    const id='msg_'+ch.key+'_'+Date.now();
+
+    html+=`<div class="msg-card">`;
+    html+=`<div class="msg-card-header"><span class="msg-card-type ${ch.type}">${ch.icon} ${ch.label}</span>`;
+    html+=`<button class="msg-copy" onclick="copyMsg('${ch.key}')">Copiar</button></div>`;
+    if(subj)html+=`<div class="msg-subject">${subj}</div>`;
+    html+=`<div class="msg-body" id="body_${ch.key}">${body}</div>`;
+    if(ch.key==='email')html+=`<div class="msg-cta">${camp.cta}</div>`;
+    if(localCtx)html+=`<div class="msg-tag">💡 Contexto local: ${localCtx}</div>`;
+    html+=`</div>`;
+  });
+  html+=`</div>`;
+
+  // ── NEW CHANNELS: Google Ads, Banner, Tótem ──
+  // GOOGLE ADS
+  const gads=msgs.googleads;
+  if(gads){
+    html+=`<div class="output-section"><h3><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>Google Ads — Search &amp; Display</h3>`;
+    const headlines=(gads.headlines||[]).map(h=>rep(h));
+    const descs=(gads.descriptions||[]).map(d=>rep(d));
+    const sitelinks=gads.sitelinks||[];
+
+    html+=`<div class="msg-card"><div class="msg-card-header"><span class="msg-card-type googleads">🔍 Google Search Ad</span><button class="msg-copy" onclick="copyMsg('googleads')">Copiar</button></div>`;
+    html+=`<div class="ad-preview"><div class="ad-badge">Ad</div><span class="ad-url">www.geotab.com/${countryCode}</span>`;
+    html+=`<div class="ad-headline">${headlines[0]} | ${headlines[1]}</div>`;
+    html+=`<div class="ad-desc">${descs[0]}</div></div>`;
+    html+=`<div class="msg-body" id="body_googleads" style="margin-top:0.8rem">`;
+    html+=`<strong>Headlines (30 chars max c/u):</strong>\n`;
+    headlines.forEach((h,i)=>{html+=`${i+1}. ${h} (${h.length} chars)\n`;});
+    html+=`\n<strong>Descripciones (90 chars max c/u):</strong>\n`;
+    descs.forEach((d,i)=>{html+=`${i+1}. ${d} (${d.length} chars)\n`;});
+    html+=`\n<strong>Sitelinks:</strong>\n`;
+    sitelinks.forEach(s=>{html+=`• ${s}\n`;});
+    html+=`</div></div>`;
+    html+=`</div>`;
+  }
+
+  // BANNER
+  const bn=msgs.banner;
+  if(bn){
+    html+=`<div class="output-section"><h3><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>Banners Publicitarios</h3>`;
+    html+=`<div class="msg-card"><div class="msg-card-header"><span class="msg-card-type banner">🖼️ Banner Digital</span><button class="msg-copy" onclick="copyMsg('banner')">Copiar</button></div>`;
+    html+=`<div class="banner-preview"><div class="bn-headline">${rep(bn.headline)}</div><div class="bn-sub">${rep(bn.sub)}</div><div class="bn-cta">${bn.cta}</div><div class="bn-size">Tamaños: ${bn.sizes.join(' | ')}</div></div>`;
+    html+=`<div class="msg-body" id="body_banner" style="margin-top:0.8rem">`;
+    html+=`<strong>Headline:</strong> ${rep(bn.headline).replace(/\n/g,' ')}\n`;
+    html+=`<strong>Subtítulo:</strong> ${rep(bn.sub)}\n`;
+    html+=`<strong>CTA:</strong> ${bn.cta}\n`;
+    html+=`<strong>Tamaños recomendados:</strong> ${bn.sizes.join(', ')}\n`;
+    html+=`<strong>Notas de diseño:</strong> Fondo oscuro (navy #1A1F36), CTA verde Geotab (#00843D), logo esquina sup-izq, producto/visual en derecha.`;
+    html+=`</div></div></div>`;
+  }
+
+  // TÓTEM
+  const tm=msgs.totem;
+  if(tm){
+    html+=`<div class="output-section"><h3><svg viewBox="0 0 24 24"><path d="M17 1H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm0 18H7V5h10v14z"/></svg>T&oacute;tem / Display F&iacute;sico</h3>`;
+    html+=`<div class="msg-card"><div class="msg-card-header"><span class="msg-card-type totem">🏗️ Tótem</span><button class="msg-copy" onclick="copyMsg('totem')">Copiar</button></div>`;
+    html+=`<div class="totem-preview"><div class="tm-logo">GEOTAB</div><div class="tm-headline">${rep(tm.headline)}</div><div class="tm-sub">${rep(tm.sub)}</div><div class="tm-qr">QR CODE</div><div class="tm-cta">${rep(tm.cta)}</div></div>`;
+    html+=`<div class="msg-body" id="body_totem" style="margin-top:0.8rem">`;
+    html+=`<strong>Headline:</strong> ${rep(tm.headline).replace(/\n/g,' ')}\n`;
+    html+=`<strong>Subtítulo:</strong> ${rep(tm.sub)}\n`;
+    html+=`<strong>CTA:</strong> ${rep(tm.cta)}\n`;
+    html+=`<strong>Footer/URL:</strong> ${rep(tm.footer||'geotab.com')}\n`;
+    html+=`<strong>QR destino:</strong> Landing page con UTM: ?utm_source=totem&utm_medium=event&utm_campaign=${campKey}&utm_content=${countryCode}\n`;
+    html+=`<strong>Especificaciones:</strong> Formato vertical (60x160cm o 80x200cm), fondo navy, tipografía Segoe UI/Arial, logo Geotab blanco, QR mínimo 8x8cm.`;
+    html+=`</div></div></div>`;
+  }
+
+  // 3. TALKING POINTS
+  html+=`<div class="output-section"><h3><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Talking Points para ${vert.name}</h3>`;
+  html+=`<div class="msg-card">`;
+  html+=`<div class="msg-card-header"><span class="msg-card-type talking">🎯 Para reunión con cliente</span>`;
+  html+=`<button class="msg-copy" onclick="copyMsg('talking')">Copiar</button></div>`;
+  let tp='';
+  tp+=`Apertura:\n"${painStat}. ¿Cómo lo están manejando hoy?"\n\n`;
+  tp+=`Problema:\n`;
+  const pains=activePains.length>0?activePains:vert.pains.slice(0,3);
+  pains.forEach(p=>{tp+=`• ${p}\n`;});
+  tp+=`\nSolución Geotab (${camp.name}):\n`;
+  tp+=`"${camp.narrative}"\n\n`;
+  tp+=`Productos específicos:\n`;
+  camp.products.forEach(p=>{tp+=`• ${p}\n`;});
+  tp+=`\nResultados esperados:\n${vert.value}\n\n`;
+  tp+=`CTA:\n"${camp.cta}. ¿Agendamos una demo de 30 minutos?"`;
+  html+=`<div class="msg-body" id="body_talking">${tp}</div></div></div>`;
+
+  // 4. MARKET INSIGHTS
+  html+=`<div class="output-section"><h3><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>Insights del Mercado — ${country.name}</h3>`;
+  html+=`<div class="insight-grid">`;
+  html+=`<div class="insight-card info"><h4>📊 Contexto del país</h4><p>${country.context}</p></div>`;
+  html+=`<div class="insight-card warn"><h4>⚔️ Competencia local</h4><p>${country.competitors}</p></div>`;
+  html+=`<div class="insight-card"><h4>🎯 Propuesta de valor clave</h4><p>${vert.value}</p></div>`;
+  if(localCtx){html+=`<div class="insight-card danger"><h4>📌 Contexto local adicional</h4><p>${localCtx}</p></div>`;}
+  html+=`</div></div>`;
+
+  // 5. ACTIONS
+  html+=`<div class="acts">`;
+  html+=`<button class="btn btn-wa" onclick="shareWA()"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp</button>`;
+  html+=`<button class="btn btn-em" onclick="shareEM()"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.89 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Email</button>`;
+  html+=`<button class="btn btn-cp" onclick="copyAll()"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copiar Todo</button>`;
+  html+=`<button class="btn btn-pr" onclick="window.print()"><svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>Imprimir</button>`;
+  html+=`</div>`;
+
+  $('outputArea').innerHTML=html;
+  $('outputArea').style.display='block';
+  $('emptyState').style.display='none';
+}
+
+// ════════════════════════════════════════════
+// SHARE FUNCTIONS
+// ════════════════════════════════════════════
+function copyMsg(key){
+  const el=$('body_'+key);
+  if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(()=>showToast('Mensaje copiado'));
+}
+function copyAll(){
+  const bodies=document.querySelectorAll('[id^="body_"]');
+  let all='';
+  bodies.forEach(b=>{all+=b.textContent+'\n\n---\n\n';});
+  navigator.clipboard.writeText(all).then(()=>showToast('Todos los mensajes copiados'));
+}
+function shareWA(){
+  const wa=$('body_whatsapp');
+  if(wa)window.open('https://wa.me/?text='+encodeURIComponent(wa.textContent),'_blank');
+}
+function shareEM(){
+  const subj=document.querySelector('.msg-subject')?.textContent||'Campaña Geotab';
+  const body=$('body_email')?.textContent||'';
+  window.open('mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body));
+}
+function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// INIT
+buildPainChips();
+$('vertical').addEventListener('change',buildPainChips);
+</script>
+</body>
+</html>
