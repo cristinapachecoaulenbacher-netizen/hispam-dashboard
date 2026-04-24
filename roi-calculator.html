@@ -12,7 +12,7 @@
   --bg:#F1F5F9;--card:#FFFFFF;--border:#E2E8F0;
   --radius:12px;--shadow:0 1px 4px rgba(0,0,0,0.06);
   --shadow-lg:0 8px 24px rgba(0,0,0,0.10);
-  --fuel:#059669;--maint:#0891B2;--fleet:#7C3AED;--safety:#DC2626;--labor:#D97706;
+  --fuel:#059669;--maint:#0891B2;--fleet:#7C3AED;--safety:#DC2626;--labor:#D97706;--insur:#0d9488;--theft:#be185d;
 }
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--navy);min-height:100vh}
 
@@ -325,6 +325,8 @@ input:checked+.sw-sl:before{transform:translateX(16px)}
       <p><strong>Optimizaci&oacute;n:</strong> Geotab fleet utilization research. Veh&iacute;culos &lt;50% uso pueden retirarse.</p>
       <p><strong>Seguridad:</strong> Reducci&oacute;n de accidentes con telem&aacute;tica + scorecard. Benchmarks globales Geotab.</p>
       <p><strong>Productividad:</strong> Costo laboral de horas en ralent&iacute; recuperadas para tareas productivas.</p>
+      <p><strong>Seguro:</strong> Reducci&oacute;n 5-15% en prima anual. Aseguradoras LATAM otorgan descuento documentado por telem&aacute;tica activa.</p>
+      <p><strong>Recuperaci&oacute;n Robo</strong> <em>(Colombia, Argentina, Chile, Centroam&eacute;rica)</em><strong>:</strong> Reducci&oacute;n 20-40% en p&eacute;rdidas por robo de veh&iacute;culo/carga. GPS reduce probabilidad de ser blanco y aumenta recuperaci&oacute;n a ~80% (Ituran/Geotab).</p>
       <p><strong>Nota:</strong> Estimaciones basadas en benchmarks de industria. Resultados reales var&iacute;an seg&uacute;n operaci&oacute;n.</p>
     </div>
   </main>
@@ -340,29 +342,37 @@ input:checked+.sw-sl:before{transform:translateX(16px)}
 <script>
 // ═══════════════ DATA ═══════════════
 const C={
-  mx:{name:'M\u00e9xico',cur:'MXN',sym:'$',loc:'es-MX',diesel:25.80,maintKm:2.50,fixedCost:180000,accRate:10,accCost:150000,devCost:5000,subCost:650,salary:15000},
-  co:{name:'Colombia',cur:'COP',sym:'$',loc:'es-CO',diesel:2600,maintKm:280,fixedCost:25000000,accRate:12,accCost:20000000,devCost:650000,subCost:80000,salary:2500000},
-  cl:{name:'Chile',cur:'CLP',sym:'$',loc:'es-CL',diesel:1050,maintKm:110,fixedCost:8500000,accRate:8,accCost:8000000,devCost:200000,subCost:28000,salary:850000},
-  ar:{name:'Argentina',cur:'ARS',sym:'$',loc:'es-AR',diesel:1350,maintKm:150,fixedCost:12000000,accRate:10,accCost:10000000,devCost:250000,subCost:35000,salary:800000},
-  pe:{name:'Per\u00fa',cur:'PEN',sym:'S/',loc:'es-PE',diesel:3.50,maintKm:0.40,fixedCost:35000,accRate:12,accCost:30000,devCost:650,subCost:85,salary:2500},
-  ec:{name:'Ecuador',cur:'USD',sym:'$',loc:'en-US',diesel:1.75,maintKm:0.08,fixedCost:8000,accRate:10,accCost:5000,devCost:180,subCost:22,salary:600},
-  uy:{name:'Uruguay',cur:'UYU',sym:'$',loc:'es-UY',diesel:67,maintKm:7.50,fixedCost:650000,accRate:8,accCost:500000,devCost:9000,subCost:1000,salary:45000},
-  py:{name:'Paraguay',cur:'PYG',sym:'\u20b2',loc:'es-PY',diesel:7200,maintKm:780,fixedCost:45000000,accRate:10,accCost:35000000,devCost:1300000,subCost:170000,salary:3500000},
-  bo:{name:'Bolivia',cur:'BOB',sym:'Bs',loc:'es-BO',diesel:3.72,maintKm:0.40,fixedCost:45000,accRate:10,accCost:35000,devCost:1200,subCost:155,salary:3500},
-  caribe:{name:'Caribe',cur:'USD',sym:'$',loc:'en-US',diesel:1.20,maintKm:0.08,fixedCost:10000,accRate:8,accCost:8000,devCost:180,subCost:22,salary:800},
-  pr:{name:'Puerto Rico',cur:'USD',sym:'$',loc:'en-US',diesel:1.10,maintKm:0.10,fixedCost:15000,accRate:8,accCost:15000,devCost:200,subCost:25,salary:2500},
-  ca:{name:'Centroam\u00e9rica',cur:'USD',sym:'$',loc:'en-US',diesel:1.15,maintKm:0.07,fixedCost:7000,accRate:12,accCost:5000,devCost:180,subCost:22,salary:500}
+  mx:{name:'M\u00e9xico',    cur:'MXN',sym:'$',  loc:'es-MX',diesel:25.80,maintKm:2.50, fixedCost:180000,   accRate:10,accCost:150000,   devCost:5000,   subCost:650,   salary:15000,  insurance:20000},
+  co:{name:'Colombia',       cur:'COP',sym:'$',  loc:'es-CO',diesel:2600, maintKm:280,  fixedCost:25000000, accRate:12,accCost:20000000, devCost:650000, subCost:80000, salary:2500000,insurance:1200000},
+  cl:{name:'Chile',          cur:'CLP',sym:'$',  loc:'es-CL',diesel:1050, maintKm:110,  fixedCost:8500000,  accRate:8, accCost:8000000, devCost:200000, subCost:28000, salary:850000, insurance:480000},
+  ar:{name:'Argentina',      cur:'ARS',sym:'$',  loc:'es-AR',diesel:1350, maintKm:150,  fixedCost:12000000, accRate:10,accCost:10000000,devCost:250000, subCost:35000, salary:800000, insurance:90000},
+  pe:{name:'Per\u00fa',      cur:'PEN',sym:'S/', loc:'es-PE',diesel:3.50, maintKm:0.40, fixedCost:35000,    accRate:12,accCost:30000,    devCost:650,    subCost:85,    salary:2500,   insurance:1200},
+  ec:{name:'Ecuador',        cur:'USD',sym:'$',  loc:'en-US',diesel:1.75, maintKm:0.08, fixedCost:8000,     accRate:10,accCost:5000,     devCost:180,    subCost:22,    salary:600,    insurance:550},
+  uy:{name:'Uruguay',        cur:'UYU',sym:'$',  loc:'es-UY',diesel:67,   maintKm:7.50, fixedCost:650000,   accRate:8, accCost:500000,  devCost:9000,   subCost:1000,  salary:45000,  insurance:25000},
+  py:{name:'Paraguay',       cur:'PYG',sym:'\u20b2',loc:'es-PY',diesel:7200,maintKm:780,fixedCost:45000000,accRate:10,accCost:35000000,devCost:1300000,subCost:170000,salary:3500000,insurance:2000000},
+  bo:{name:'Bolivia',        cur:'BOB',sym:'Bs', loc:'es-BO',diesel:3.72, maintKm:0.40, fixedCost:45000,    accRate:10,accCost:35000,    devCost:1200,   subCost:155,   salary:3500,   insurance:1200},
+  caribe:{name:'Caribe',     cur:'USD',sym:'$',  loc:'en-US',diesel:1.20, maintKm:0.08, fixedCost:10000,    accRate:8, accCost:8000,    devCost:180,    subCost:22,    salary:800,    insurance:1200},
+  pr:{name:'Puerto Rico',    cur:'USD',sym:'$',  loc:'en-US',diesel:1.10, maintKm:0.10, fixedCost:15000,    accRate:8, accCost:15000,   devCost:200,    subCost:25,    salary:2500,   insurance:2000},
+  ca:{name:'Centroam\u00e9rica',cur:'USD',sym:'$',loc:'en-US',diesel:1.15,maintKm:0.07, fixedCost:7000,     accRate:12,accCost:5000,    devCost:180,    subCost:22,    salary:500,    insurance:800}
+};
+// Países con riesgo de robo relevante (categoría aparece solo para estos)
+const THEFT_COUNTRIES=['co','ar','cl','ca'];
+const THEFT_DATA={
+  co:{risk:0.08,avgLoss:28000000}, // 8% prob/veh/año, pérdida promedio COP
+  ar:{risk:0.05,avgLoss:95000},    // ARS
+  cl:{risk:0.04,avgLoss:1600000},  // CLP
+  ca:{risk:0.06,avgLoss:7000}      // USD — incluye Panamá
 };
 const SC={
-  con:{name:'Conservador',idleRed:0.10,idleHrs:1.0,maintRed:0.08,underutil:0.05,accRed:0.15},
-  mod:{name:'Moderado',idleRed:0.15,idleHrs:1.5,maintRed:0.12,underutil:0.08,accRed:0.20},
-  agr:{name:'Agresivo',idleRed:0.25,idleHrs:2.0,maintRed:0.18,underutil:0.12,accRed:0.30}
+  con:{name:'Conservador',idleRed:0.10,idleHrs:1.0,maintRed:0.08,underutil:0.05,accRed:0.15,insurRed:0.05,theftRed:0.20},
+  mod:{name:'Moderado',   idleRed:0.15,idleHrs:1.5,maintRed:0.12,underutil:0.08,accRed:0.20,insurRed:0.10,theftRed:0.30},
+  agr:{name:'Agresivo',   idleRed:0.25,idleHrs:2.0,maintRed:0.18,underutil:0.12,accRed:0.30,insurRed:0.15,theftRed:0.40}
 };
 // Escenarios para flotas que YA tienen telemática (ahorro incremental vs sistema actual)
 const SC_TELEM={
-  con:{name:'Conservador',idleRed:0.05,idleHrs:0.5,maintRed:0.05,underutil:0.03,accRed:0.08},
-  mod:{name:'Moderado',   idleRed:0.08,idleHrs:0.8,maintRed:0.08,underutil:0.05,accRed:0.12},
-  agr:{name:'Agresivo',   idleRed:0.12,idleHrs:1.0,maintRed:0.12,underutil:0.08,accRed:0.20}
+  con:{name:'Conservador',idleRed:0.05,idleHrs:0.5,maintRed:0.05,underutil:0.03,accRed:0.08,insurRed:0.05,theftRed:0.15},
+  mod:{name:'Moderado',   idleRed:0.08,idleHrs:0.8,maintRed:0.08,underutil:0.05,accRed:0.12,insurRed:0.10,theftRed:0.24},
+  agr:{name:'Agresivo',   idleRed:0.12,idleHrs:1.0,maintRed:0.12,underutil:0.08,accRed:0.20,insurRed:0.15,theftRed:0.35}
 };
 const VT={heavy:{c:35,i:2.2},medium:{c:22,i:1.8},van:{c:14,i:1.2},light:{c:10,i:0.8},mixed:{c:20,i:1.5}};
 let cc='mx';
@@ -395,10 +405,20 @@ function calc(sc){
   const dpm=days/12,hourly=(dpm>0&&workHrs>0)?salary/(dpm*workHrs):0;
   const idleHrsSaved=idleHrs*sc.idleRed;
   const labor=idleHrsSaved*hourly;
+  // Insurance (all countries)
+  const insur=v*(co.insurance||0)*sc.insurRed;
+  // Theft recovery (only theft-risk countries)
+  let theft=0,theftBase=0,theftAvoided=0;
+  if(THEFT_COUNTRIES.includes(cc)&&THEFT_DATA[cc]){
+    const td=THEFT_DATA[cc];
+    theftBase=v*td.risk*td.avgLoss;
+    theftAvoided=theftBase*sc.theftRed;
+    theft=theftAvoided;
+  }
 
-  const total=fuel+maint+fleet+safety+labor;
-  return{fuel,maint,fleet,safety,labor,total,perV:total/v,perVm:total/v/12,perVd:total/v/days,
-    idleHrs,idleLph,litSaved,idleHrsSaved,hourly,totalKm,mCostTotal,underV,expAcc,avoidAcc};
+  const total=fuel+maint+fleet+safety+labor+insur+theft;
+  return{fuel,maint,fleet,safety,labor,insur,theft,total,perV:total/v,perVm:total/v/12,perVd:total/v/days,
+    idleHrs,idleLph,litSaved,idleHrsSaved,hourly,totalKm,mCostTotal,underV,expAcc,avoidAcc,theftBase,theftAvoided};
 }
 
 function payback(annual,v){
@@ -439,15 +459,17 @@ function recalc(){
     {name:'Mantenimiento',val:rm.maint,color:'var(--maint)',hex:'#0891B2'},
     {name:'Optimizaci\u00f3n Flota',val:rm.fleet,color:'var(--fleet)',hex:'#7C3AED'},
     {name:'Seguridad',val:rm.safety,color:'var(--safety)',hex:'#DC2626'},
-    {name:'Productividad',val:rm.labor,color:'var(--labor)',hex:'#D97706'}
-  ];
+    {name:'Productividad',val:rm.labor,color:'var(--labor)',hex:'#D97706'},
+    {name:'Ahorro Seguro',val:rm.insur,color:'var(--insur)',hex:'#0d9488'},
+    ...(THEFT_COUNTRIES.includes(cc)?[{name:'Recuperaci\u00f3n Robo',val:rm.theft,color:'var(--theft)',hex:'#be185d'}]:[])
+  ].filter(c=>c.val>0);
   // Build conic gradient
   let cum=0;const segs=[];
   cats.forEach(c=>{const p=rm.total>0?c.val/rm.total*100:0;segs.push(`${c.hex} ${cum}% ${cum+p}%`);cum+=p;});
   const grad=segs.join(', ')||'#E2E8F0 0% 100%';
 
   let d=`<h3>Desglose de Ahorro</h3><div class="desg-wrap">`;
-  d+=`<div class="donut-wrap"><div class="donut" style="background:conic-gradient(${grad})"><div class="donut-hole"><div class="donut-hole-val">5 categor\u00edas</div><div class="donut-hole-num">${v} veh.</div></div></div></div>`;
+  d+=`<div class="donut-wrap"><div class="donut" style="background:conic-gradient(${grad})"><div class="donut-hole"><div class="donut-hole-val">${cats.length} categor\u00edas</div><div class="donut-hole-num">${v} veh.</div></div></div></div>`;
   d+=`<div class="desg-legend">`;
   cats.forEach(c=>{
     d+=`<div class="dl-row"><div class="dl-dot" style="background:${c.color}"></div><div class="dl-info"><span class="dl-name">${c.name}</span><div class="dl-right"><div class="dl-val">${fmt(c.val)}</div><div class="dl-pct">${pct(c.val,rm.total)}%</div></div></div></div>`;
@@ -456,8 +478,10 @@ function recalc(){
   $('desgloseCard').innerHTML=d;
 
   // SCENARIO COMPARISON TABLE
-  const catNames=['Combustible','Mantenimiento','Optim. Flota','Seguridad','Productividad'];
-  const catKeys=['fuel','maint','fleet','safety','labor'];
+  const catNames=['Combustible','Mantenimiento','Optim. Flota','Seguridad','Productividad','Ahorro Seguro',
+    ...(THEFT_COUNTRIES.includes(cc)?['Recuperaci\u00f3n Robo']:[])];
+  const catKeys=['fuel','maint','fleet','safety','labor','insur',
+    ...(THEFT_COUNTRIES.includes(cc)?['theft']:[])];
   let s=`<h3>Comparaci\u00f3n de Escenarios</h3><table class="sc-table">`;
   s+=`<tr><th></th><th>Conservador</th><th class="rec">Moderado<span class="rec-badge">REC.</span></th><th>Agresivo</th></tr>`;
   catKeys.forEach((k,i)=>{
@@ -561,6 +585,16 @@ function recalc(){
   dt+=`<tr><td>Costo hora conductor</td><td class="hl">${fmt(rm.hourly)}/hr</td></tr>`;
   dt+=`<tr><td>Horas recuperadas</td><td class="hl">${Math.round(rm.idleHrsSaved).toLocaleString()} hrs</td></tr>`;
   dt+=`<tr><td>Ahorro productividad</td><td class="hl">${fmt(rm.labor)}</td></tr>`;
+  dt+=`<tr><td class="cat-hdr" style="color:var(--insur)">SEGURO</td><td></td></tr>`;
+  dt+=`<tr><td>Prima anual / veh.</td><td class="hl">${fmt(C[cc].insurance)}</td></tr>`;
+  dt+=`<tr><td>Reducci\u00f3n (moderado)</td><td class="hl">10%</td></tr>`;
+  dt+=`<tr><td>Ahorro seguro</td><td class="hl">${fmt(rm.insur)}</td></tr>`;
+  if(THEFT_COUNTRIES.includes(cc)){
+    dt+=`<tr><td class="cat-hdr" style="color:var(--theft)">RECUPERACI\u00d3N ROBO</td><td></td></tr>`;
+    dt+=`<tr><td>P\u00e9rdida esperada/a\u00f1o</td><td class="hl">${fmt(rm.theftBase)}</td></tr>`;
+    dt+=`<tr><td>Reducci\u00f3n con GPS (mod.)</td><td class="hl">30%</td></tr>`;
+    dt+=`<tr><td>Ahorro recuperaci\u00f3n</td><td class="hl">${fmt(rm.theft)}</td></tr>`;
+  }
   dt+=`</table>`;
   $('detailBox').innerHTML=dt;
 
@@ -602,7 +636,10 @@ function getText(){
   t+=`\u2022 Mantenimiento: ${fmt(rM.maint)}\n`;
   t+=`\u2022 Optimizaci\u00f3n flota: ${fmt(rM.fleet)}\n`;
   t+=`\u2022 Seguridad: ${fmt(rM.safety)}\n`;
-  t+=`\u2022 Productividad: ${fmt(rM.labor)}\n\n`;
+  t+=`\u2022 Productividad: ${fmt(rM.labor)}\n`;
+  t+=`\u2022 Ahorro seguro: ${fmt(rM.insur)}\n`;
+  if(THEFT_COUNTRIES.includes(cc))t+=`\u2022 Recuperaci\u00f3n robo: ${fmt(rM.theft)}\n`;
+  t+=`\n`;
   const subV=+$('subCost').value||1;
   t+=`Por veh\u00edculo: ${fmt(rM.perVm)}/mes (${subV>0?Math.round(rM.perVm/subV):0}x la suscripci\u00f3n)\n`;
   t+=`Payback: ${pb.bp||'12+'} meses | ROI A\u00f1o 1: ${Math.round(pb.y1r)}%\n\n`;
