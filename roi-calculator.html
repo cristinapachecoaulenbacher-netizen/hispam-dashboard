@@ -327,6 +327,7 @@ input:checked+.sw-sl:before{transform:translateX(16px)}
       <p><strong>Productividad:</strong> Costo laboral de horas en ralent&iacute; recuperadas para tareas productivas.</p>
       <p><strong>Seguro:</strong> Reducci&oacute;n 5-15% en prima anual. Aseguradoras LATAM otorgan descuento documentado por telem&aacute;tica activa.</p>
       <p><strong>Recuperaci&oacute;n Robo</strong> <em>(Colombia, Argentina, Chile, Centroam&eacute;rica)</em><strong>:</strong> Reducci&oacute;n 20-40% en p&eacute;rdidas por robo de veh&iacute;culo/carga. GPS reduce probabilidad de ser blanco y aumenta recuperaci&oacute;n a ~80% (Ituran/Geotab).</p>
+      <p><strong>Precios diesel:</strong> Actualizados abril 2026 (GlobalPetrolPrices.com). Argentina: precio vol&aacute;til — verificar mensualmente.</p>
       <p><strong>Nota:</strong> Estimaciones basadas en benchmarks de industria. Resultados reales var&iacute;an seg&uacute;n operaci&oacute;n.</p>
     </div>
   </main>
@@ -342,11 +343,11 @@ input:checked+.sw-sl:before{transform:translateX(16px)}
 <script>
 // ═══════════════ DATA ═══════════════
 const C={
-  mx:{name:'M\u00e9xico',    cur:'MXN',sym:'$',  loc:'es-MX',diesel:25.80,maintKm:2.50, fixedCost:180000,   accRate:10,accCost:150000,   devCost:5000,   subCost:650,   salary:15000,  insurance:20000},
-  co:{name:'Colombia',       cur:'COP',sym:'$',  loc:'es-CO',diesel:2600, maintKm:280,  fixedCost:25000000, accRate:12,accCost:20000000, devCost:650000, subCost:80000, salary:2500000,insurance:1200000},
-  cl:{name:'Chile',          cur:'CLP',sym:'$',  loc:'es-CL',diesel:1050, maintKm:110,  fixedCost:8500000,  accRate:8, accCost:8000000, devCost:200000, subCost:28000, salary:850000, insurance:480000},
-  ar:{name:'Argentina',      cur:'ARS',sym:'$',  loc:'es-AR',diesel:1350, maintKm:150,  fixedCost:12000000, accRate:10,accCost:10000000,devCost:250000, subCost:35000, salary:800000, insurance:90000},
-  pe:{name:'Per\u00fa',      cur:'PEN',sym:'S/', loc:'es-PE',diesel:3.50, maintKm:0.40, fixedCost:35000,    accRate:12,accCost:30000,    devCost:650,    subCost:85,    salary:2500,   insurance:1200},
+  mx:{name:'M\u00e9xico',    cur:'MXN',sym:'$',  loc:'es-MX',diesel:28.30,maintKm:2.50, fixedCost:220000,   accRate:10,accCost:150000,   devCost:5000,   subCost:650,   salary:15000,  insurance:20000},
+  co:{name:'Colombia',       cur:'COP',sym:'$',  loc:'es-CO',diesel:2900, maintKm:280,  fixedCost:30000000, accRate:12,accCost:20000000, devCost:650000, subCost:80000, salary:2500000,insurance:1200000},
+  cl:{name:'Chile',          cur:'CLP',sym:'$',  loc:'es-CL',diesel:1430, maintKm:110,  fixedCost:8500000,  accRate:8, accCost:8000000, devCost:200000, subCost:28000, salary:850000, insurance:480000},
+  ar:{name:'Argentina',      cur:'ARS',sym:'$',  loc:'es-AR',diesel:1550, maintKm:150,  fixedCost:12000000, accRate:10,accCost:10000000,devCost:250000, subCost:35000, salary:800000, insurance:90000},
+  pe:{name:'Per\u00fa',      cur:'PEN',sym:'S/', loc:'es-PE',diesel:4.00, maintKm:0.40, fixedCost:35000,    accRate:12,accCost:30000,    devCost:650,    subCost:85,    salary:2500,   insurance:1200},
   ec:{name:'Ecuador',        cur:'USD',sym:'$',  loc:'en-US',diesel:1.75, maintKm:0.08, fixedCost:8000,     accRate:10,accCost:5000,     devCost:180,    subCost:22,    salary:600,    insurance:550},
   uy:{name:'Uruguay',        cur:'UYU',sym:'$',  loc:'es-UY',diesel:67,   maintKm:7.50, fixedCost:650000,   accRate:8, accCost:500000,  devCost:9000,   subCost:1000,  salary:45000,  insurance:25000},
   py:{name:'Paraguay',       cur:'PYG',sym:'\u20b2',loc:'es-PY',diesel:7200,maintKm:780,fixedCost:45000000,accRate:10,accCost:35000000,devCost:1300000,subCost:170000,salary:3500000,insurance:2000000},
@@ -374,7 +375,7 @@ const SC_TELEM={
   mod:{name:'Moderado',   idleRed:0.08,idleHrs:0.8,maintRed:0.08,underutil:0.05,accRed:0.12,insurRed:0.10,theftRed:0.24},
   agr:{name:'Agresivo',   idleRed:0.12,idleHrs:1.0,maintRed:0.12,underutil:0.08,accRed:0.20,insurRed:0.15,theftRed:0.35}
 };
-const VT={heavy:{c:35,i:2.2},medium:{c:22,i:1.8},van:{c:14,i:1.2},light:{c:10,i:0.8},mixed:{c:20,i:1.5}};
+const VT={heavy:{c:35,i:2.8},medium:{c:22,i:1.8},van:{c:14,i:1.2},light:{c:10,i:0.8},mixed:{c:20,i:1.5}};
 let cc='mx';
 
 // ═══════════════ HELPERS ═══════════════
