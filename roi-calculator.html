@@ -180,6 +180,20 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .srcs p{font-size:0.65rem;color:var(--muted);line-height:1.6;margin-bottom:0.2rem}
 .srcs strong{color:var(--slate)}
 
+/* TELEMATICS TOGGLE */
+.telem-toggle{background:linear-gradient(135deg,#0f2027,#1a3a4a);border:1px solid #1e4a5a;border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem}
+.telem-toggle-left{flex:1}
+.telem-toggle-label{font-size:0.72rem;font-weight:700;color:#fff;margin-bottom:0.1rem}
+.telem-toggle-sub{font-size:0.58rem;color:rgba(255,255,255,0.45)}
+.sw{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0}
+.sw-sl{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#334155;border-radius:22px;transition:.3s}
+.sw-sl:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+input:checked+.sw-sl{background:var(--green)}
+input:checked+.sw-sl:before{transform:translateX(16px)}
+.telem-badge{display:none;background:var(--green);color:#fff;font-size:0.55rem;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:10px;margin-top:0.35rem}
+.telem-badge.show{display:inline-block}
+
 /* TOAST */
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:#fff;padding:0.6rem 1.2rem;border-radius:8px;font-size:0.8rem;font-weight:600;opacity:0;transition:all 0.3s;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -220,6 +234,17 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 <div class="dash">
   <!-- ═══════════ LEFT PANEL ═══════════ -->
   <aside class="panel" id="panel">
+
+    <!-- TOGGLE TELEMÁTICA -->
+    <div class="telem-toggle">
+      <div class="telem-toggle-left">
+        <div class="telem-toggle-label">&#128225; &iquest;Ya tienen telem&aacute;tica?</div>
+        <div class="telem-toggle-sub">Calcula el ahorro <strong>incremental</strong> vs su sistema actual</div>
+        <div class="telem-badge" id="telemBadge">MODO INCREMENTAL</div>
+      </div>
+      <label class="sw"><input type="checkbox" id="hasTelem" onchange="recalc()"><span class="sw-sl"></span></label>
+    </div>
+
     <div class="psec">
       <div class="psec-title"><svg viewBox="0 0 24 24"><path d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM19.92 12c-.15-.73-.69-1.35-1.4-1.56L16.55 10l-2.68-4.03C13.45 5.37 12.78 5 12.06 5H5c-1.1 0-2 .9-2 2v5.5c0 .83.67 1.5 1.5 1.5S6 13.33 6 12.5V10h3l2.49 3.74c.41.62 1.1.99 1.84 1.01l.67.01v2.74c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V15h1.5v2.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V15l.08-.01c.52-.06.97-.37 1.22-.82L23 14l-1-1-.08-.01v-.99z"/></svg>Datos de la Flota</div>
       <div class="prow full">
@@ -246,7 +271,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
       </div>
       <div class="prow">
         <div class="pf"><label>Km anuales / veh.</label><input type="number" id="km" value="80000" min="1000" step="1000" oninput="recalc()"></div>
-        <div class="pf"><label>Consumo (L/100km)</label><input type="number" id="consumption" value="20" min="1" step="0.5" oninput="recalc()"></div>
+        <div class="pf"><label>Rendimiento (km/L)</label><input type="number" id="consumption" value="5.0" min="0.5" step="0.1" oninput="recalc()"></div>
       </div>
     </div>
 
@@ -333,6 +358,12 @@ const SC={
   mod:{name:'Moderado',idleRed:0.15,idleHrs:1.5,maintRed:0.12,underutil:0.08,accRed:0.20},
   agr:{name:'Agresivo',idleRed:0.25,idleHrs:2.0,maintRed:0.18,underutil:0.12,accRed:0.30}
 };
+// Escenarios para flotas que YA tienen telemática (ahorro incremental vs sistema actual)
+const SC_TELEM={
+  con:{name:'Conservador',idleRed:0.05,idleHrs:0.5,maintRed:0.05,underutil:0.03,accRed:0.08},
+  mod:{name:'Moderado',   idleRed:0.08,idleHrs:0.8,maintRed:0.08,underutil:0.05,accRed:0.12},
+  agr:{name:'Agresivo',   idleRed:0.12,idleHrs:1.0,maintRed:0.12,underutil:0.08,accRed:0.20}
+};
 const VT={heavy:{c:35,i:2.2},medium:{c:22,i:1.8},van:{c:14,i:1.2},light:{c:10,i:0.8},mixed:{c:20,i:1.5}};
 let cc='mx';
 
@@ -382,14 +413,19 @@ function payback(annual,v){
 // ═══════════════ RENDER ═══════════════
 function recalc(){
   const v=+$('vehicles').value||1,co=C[cc];
-  const R={};['con','mod','agr'].forEach(k=>{R[k]=calc(SC[k]);});
+  const hasTelem=$('hasTelem').checked;
+  const scSet=hasTelem?SC_TELEM:SC;
+  $('telemBadge').classList.toggle('show',hasTelem);
+  const R={};['con','mod','agr'].forEach(k=>{R[k]=calc(scSet[k]);});
   const rm=R.mod,subVal=+$('subCost').value||1;
   const savX=subVal>0?Math.round(rm.perVm/subVal):0;
+  const heroLabel=hasTelem?'Ahorro Incremental vs Sistema Actual':'Ahorro Total Estimado Anual';
+  const heroSub=hasTelem?`${co.cur} / a\u00f1o \u2014 Escenario Moderado \u2014 <em>modo telem\u00e1tica existente</em>`:`${co.cur} / a\u00f1o \u2014 Escenario Moderado`;
 
   // HERO
-  let h=`<div class="hero-left"><div class="hero-label">Ahorro Total Estimado Anual</div>`;
+  let h=`<div class="hero-left"><div class="hero-label">${heroLabel}</div>`;
   h+=`<div class="hero-total">${fmt(rm.total)}</div>`;
-  h+=`<div class="hero-cur">${co.cur} / a\u00f1o &mdash; Escenario Moderado</div></div>`;
+  h+=`<div class="hero-cur">${heroSub}</div></div>`;
   h+=`<div class="hero-stats">`;
   h+=`<div class="hs"><div class="hs-label">Por veh. / mes</div><div class="hs-val">${fmt(rm.perVm)}</div><div class="hs-sub">${co.cur}</div></div>`;
   h+=`<div class="hs"><div class="hs-label">Por veh. / d\u00eda</div><div class="hs-val">${fmt(rm.perVd)}</div><div class="hs-sub">${co.cur}</div></div>`;
@@ -493,14 +529,16 @@ function recalc(){
 
   // DETAIL
   const il=VT[$('vtype').value].i;
-  let dt=`<h4>Supuestos por Escenario</h4><table><tr><th>Par\u00e1metro</th><th>Conserv.</th><th>Moderado</th><th>Agresivo</th></tr>`;
-  dt+=`<tr><td>Reducci\u00f3n ralent\u00ed</td><td>10%</td><td>15%</td><td>25%</td></tr>`;
-  dt+=`<tr><td>Horas ralent\u00ed/d\u00eda</td><td>1.0</td><td>1.5</td><td>2.0</td></tr>`;
-  dt+=`<tr><td>Reducci\u00f3n mantenimiento</td><td>8%</td><td>12%</td><td>18%</td></tr>`;
-  dt+=`<tr><td>Veh. subutilizados</td><td>5%</td><td>8%</td><td>12%</td></tr>`;
-  dt+=`<tr><td>Reducci\u00f3n accidentes</td><td>15%</td><td>20%</td><td>30%</td></tr>`;
+  const kmL=(100/VT[$('vtype').value].c).toFixed(1);
+  let dt=hasTelem?`<p style="font-size:0.68rem;background:#e8f5e9;border-left:3px solid var(--green);padding:0.4rem 0.6rem;border-radius:4px;margin-bottom:0.6rem;color:var(--green-dark)"><strong>Modo telem\u00e1tica existente:</strong> factores reducidos — calcula ahorro incremental vs sistema actual.</p>`:'';
+  dt+=`<h4>Supuestos por Escenario</h4><table><tr><th>Par\u00e1metro</th><th>Conserv.</th><th>Moderado</th><th>Agresivo</th></tr>`;
+  dt+=`<tr><td>Reducci\u00f3n ralent\u00ed</td><td>${(scSet.con.idleRed*100).toFixed(0)}%</td><td>${(scSet.mod.idleRed*100).toFixed(0)}%</td><td>${(scSet.agr.idleRed*100).toFixed(0)}%</td></tr>`;
+  dt+=`<tr><td>Horas ralent\u00ed/d\u00eda</td><td>${scSet.con.idleHrs}</td><td>${scSet.mod.idleHrs}</td><td>${scSet.agr.idleHrs}</td></tr>`;
+  dt+=`<tr><td>Reducci\u00f3n mantenimiento</td><td>${(scSet.con.maintRed*100).toFixed(0)}%</td><td>${(scSet.mod.maintRed*100).toFixed(0)}%</td><td>${(scSet.agr.maintRed*100).toFixed(0)}%</td></tr>`;
+  dt+=`<tr><td>Veh. subutilizados</td><td>${(scSet.con.underutil*100).toFixed(0)}%</td><td>${(scSet.mod.underutil*100).toFixed(0)}%</td><td>${(scSet.agr.underutil*100).toFixed(0)}%</td></tr>`;
+  dt+=`<tr><td>Reducci\u00f3n accidentes</td><td>${(scSet.con.accRed*100).toFixed(0)}%</td><td>${(scSet.mod.accRed*100).toFixed(0)}%</td><td>${(scSet.agr.accRed*100).toFixed(0)}%</td></tr>`;
   dt+=`</table>`;
-  dt+=`<p style="font-size:0.68rem;color:var(--muted);margin-bottom:0.5rem">Consumo ralent\u00ed: <strong>${il} L/hr</strong> (seg\u00fan tipo de veh\u00edculo)</p>`;
+  dt+=`<p style="font-size:0.68rem;color:var(--muted);margin-bottom:0.5rem">Rendimiento: <strong>${kmL} km/L</strong> &nbsp;|&nbsp; Consumo ralent\u00ed: <strong>${il} L/hr</strong></p>`;
 
   dt+=`<h4>Detalle &mdash; Escenario Moderado</h4><table>`;
   dt+=`<tr><th>Concepto</th><th>Valor</th></tr>`;
@@ -545,7 +583,7 @@ function changeCountry(){
   $('salary').value=co.salary;$('maintKm').value=co.maintKm;
   recalc();
 }
-function changeVType(){$('consumption').value=VT[$('vtype').value].c;recalc();}
+function changeVType(){const l100=VT[$('vtype').value].c;$('consumption').value=(100/l100).toFixed(1);recalc();}
 function toggleDetail(){document.querySelector('.dtl-toggle').classList.toggle('open');$('detailBox').classList.toggle('show');}
 
 // ═══════════════ SHARE ═══════════════
